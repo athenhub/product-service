@@ -24,9 +24,6 @@ public class ProductVariant {
   @Enumerated(EnumType.STRING)
   private ProductSize size;
 
-  @OneToOne(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Stock stock;
-
   private ProductVariant(ProductVariantId id, ProductColor color, ProductSize size) {
     this.id = id;
     this.color = color;
@@ -42,7 +39,4 @@ public class ProductVariant {
     this.product = product;
   }
 
-  public void assignStock(Stock stock) {
-    this.stock = stock;
-  }
 }
