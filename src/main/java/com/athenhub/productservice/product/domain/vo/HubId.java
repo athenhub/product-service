@@ -34,7 +34,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class HubId {
 
-  /** 허브를 식별하는 UUID */
+  /** 허브를 식별하는 UUID. */
   private UUID id;
 
   /** 내부 생성자. 외부 생성은 정적 팩토리 메서드를 통해 제한한다. */
@@ -73,7 +73,9 @@ public class HubId {
 
   @Override
   public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) return false;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     HubId hubId = (HubId) o;
     return Objects.equals(id, hubId.id);
   }

@@ -25,21 +25,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ProductStatus {
 
-  /** 상품 등록 작업이 진행 중인 상태 */
+  /** 상품 등록 작업이 진행 중인 상태. */
   DRAFT("상품 등록 중"),
 
-  /** 정상적으로 판매 중인 상태 */
+  /** 정상적으로 판매 중인 상태. */
   ON_SALE("상품 판매 중"),
 
-  /** 재고가 모두 소진된 상태 */
+  /** 재고가 모두 소진된 상태. */
   SOLD_OUT("상품 재고 없음"),
 
-  /** 더 이상 판매하지 않는 단종 상태 */
+  /** 더 이상 판매하지 않는 단종 상태. */
   DISCONTINUED("상품 단종"),
 
-  /** 사용자에게 노출되지 않는 숨김 상태 */
+  /** 사용자에게 노출되지 않는 숨김 상태. */
   HIDDEN("상품 숨김 처리");
 
-  /** 상태 설명 (관리 UI 등에서 사용) */
+  /** 상태 설명 (관리 UI 등에서 사용). */
   private final String description;
 }

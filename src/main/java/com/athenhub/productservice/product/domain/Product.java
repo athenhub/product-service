@@ -1,6 +1,8 @@
 package com.athenhub.productservice.product.domain;
 
-import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.*;
+import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.PRODUCT_VARIANT_ALREADY_EXIST;
+import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.PRODUCT_VARIANT_NOT_FOUND;
+import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.PRODUCT_VARIANT_NOT_SUPPORTED;
 
 import com.athenhub.productservice.global.domain.AbstractAuditEntity;
 import com.athenhub.productservice.product.domain.dto.ProductBasicUpdateRequest;
@@ -10,8 +12,19 @@ import com.athenhub.productservice.product.domain.dto.ProductVariantUpdateReques
 import com.athenhub.productservice.product.domain.exception.ProductVariantNotSupportedException;
 import com.athenhub.productservice.product.domain.exception.VariantAlreadyExistsException;
 import com.athenhub.productservice.product.domain.exception.VariantNotFoundException;
-import com.athenhub.productservice.product.domain.vo.*;
-import jakarta.persistence.*;
+import com.athenhub.productservice.product.domain.vo.HubId;
+import com.athenhub.productservice.product.domain.vo.Price;
+import com.athenhub.productservice.product.domain.vo.ProductId;
+import com.athenhub.productservice.product.domain.vo.ProductVariantId;
+import com.athenhub.productservice.product.domain.vo.VendorId;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -49,16 +62,16 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Product extends AbstractAuditEntity {
 
-  /** 상품 ID (Aggregate Identifier) */
+  /** 상품 ID (Aggregate Identifier). */
   @EmbeddedId private ProductId id;
 
-  /** 허브 정보 */
+  /** 허브 정보. */
   @Embedded private HubId hubId;
 
-  /** 공급사 정보 */
+  /** 공급사 정보. */
   @Embedded private VendorId vendorId;
 
-  /** 기본 판매 가격 */
+  /** 기본 판매 가격. */
   @Embedded private Price price;
 
   /**
@@ -71,11 +84,11 @@ public class Product extends AbstractAuditEntity {
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ProductVariant> variants = new ArrayList<>();
 
-  /** 상품 상태 (예: DRAFT, ON_SALE, SOLD_OUT 등) */
+  /** 상품 상태 (예: DRAFT, ON_SALE, SOLD_OUT 등). */
   @Enumerated(EnumType.STRING)
   private ProductStatus status;
 
-  /** 상품 유형 (단일상품 / 옵션상품) */
+  /** 상품 유형 (단일상품 / 옵션상품). */
   @Enumerated(EnumType.STRING)
   private ProductType type;
 
@@ -127,7 +140,7 @@ public class Product extends AbstractAuditEntity {
     this.price = Price.of(request.price());
   }
 
-  /** 상품 유형 변경 (NORMAL ↔ OPTION) */
+  /** 상품 유형 변경 (NORMAL ↔ OPTION). */
   public void changeType(ProductType type) {
     this.type = type;
   }
@@ -201,7 +214,7 @@ public class Product extends AbstractAuditEntity {
   }
 
   /**
-   * 옵션 단건 조회 (없으면 예외 발생)
+   * 옵션 단건 조회 (없으면 예외 발생).
    *
    * @param variantId 옵션 ID
    * @return ProductVariant

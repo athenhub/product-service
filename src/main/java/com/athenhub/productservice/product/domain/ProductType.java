@@ -16,12 +16,12 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum ProductType {
 
-  /** 옵션이 존재하지 않는 단일 상품 */
+  /** 옵션이 존재하지 않는 단일 상품. */
   SIMPLE("옵션이 없는 상품"),
 
-  /** 색상/사이즈 등의 옵션을 포함할 수 있는 상품 */
+  /** 색상/사이즈 등의 옵션을 포함할 수 있는 상품. */
   OPTION("옵션이 있는 상품");
 
-  /** 상품 유형의 설명(관리 UI 등에서 사용 가능) */
+  /** 상품 유형의 설명(관리 UI 등에서 사용 가능). */
   private final String description;
 }

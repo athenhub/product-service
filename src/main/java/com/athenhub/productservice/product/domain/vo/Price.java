@@ -30,7 +30,7 @@ import java.util.Objects;
 @Embeddable
 public class Price {
 
-  /** 금액 값 */
+  /** 금액 값. */
   @Column(name = "price_amount", nullable = false)
   private final Long amount;
 
@@ -81,8 +81,12 @@ public class Price {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Price other)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Price other)) {
+      return false;
+    }
     return Objects.equals(amount, other.amount);
   }
 
