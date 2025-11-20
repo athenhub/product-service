@@ -13,7 +13,7 @@ class ProductVariantTest {
   @Test
   void create() {
     // given
-    ProductVariantCreateCommand request = productVariantCreateCommand("RED", "M");
+    ProductVariantCreateCommand request = newProductVariantCreateCommand("RED", "M");
 
     // when
     ProductVariant productVariant = ProductVariant.create(request);
@@ -28,7 +28,7 @@ class ProductVariantTest {
   @Test
   void update() {
     // given
-    ProductVariant productVariant = ProductVariant.create(productVariantCreateCommand("RED", "M"));
+    ProductVariant productVariant = createProductVariant("RED", "M");
 
     // when
     ProductSize changedSize = ProductSize.of("L");
@@ -43,8 +43,8 @@ class ProductVariantTest {
   @Test
   void isSameOption() {
     // given
-    ProductVariant productVariant1 = ProductVariant.create(productVariantCreateCommand("RED", "M"));
-    ProductVariant productVariant2 = ProductVariant.create(productVariantCreateCommand("RED", "M"));
+    ProductVariant productVariant1 = createProductVariant("RED", "M");
+    ProductVariant productVariant2 = createProductVariant("RED", "M");
 
     // when & then
     assertThat(productVariant1.isSameOption(productVariant2)).isTrue();
@@ -53,7 +53,7 @@ class ProductVariantTest {
   @Test
   void isDeleted() {
     // given
-    ProductVariant productVariant = ProductVariant.create(productVariantCreateCommand("RED", "M"));
+    ProductVariant productVariant = createProductVariant("RED", "M");
     productVariant.delete("test");
 
     // when & then
