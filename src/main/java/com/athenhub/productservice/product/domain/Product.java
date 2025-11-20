@@ -188,18 +188,6 @@ public class Product extends AbstractAuditEntity {
   }
 
   /**
-   * 옵션 목록 조회.
-   *
-   * @param activeOnly true면 삭제되지 않은 옵션만 조회, false면 전체 조회
-   */
-  public List<ProductVariant> getVariantsByActive(boolean activeOnly) {
-    if (!activeOnly) {
-      return getVariants();
-    }
-    return variants.stream().filter(v -> !v.isDeleted()).toList();
-  }
-
-  /**
    * 옵션 단건 조회 (없으면 예외 발생).
    *
    * @param variantId 옵션 ID
