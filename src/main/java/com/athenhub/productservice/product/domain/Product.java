@@ -211,10 +211,7 @@ public class Product extends AbstractAuditEntity {
     return variants.stream()
         .filter(v -> v.getId().equals(variantId))
         .findFirst()
-        .orElseThrow(
-            () ->
-                new VariantNotFoundException(
-                    PRODUCT_VARIANT_NOT_FOUND, id.toUuid(), variantId.toUuid()));
+        .orElseThrow(() -> new VariantNotFoundException(PRODUCT_VARIANT_NOT_FOUND));
   }
 
   /**
