@@ -2,7 +2,7 @@ package com.athenhub.productservice.product.domain;
 
 import static com.athenhub.productservice.product.domain.ProductColor.BLUE;
 import static com.athenhub.productservice.product.domain.ProductColor.RED;
-import static com.athenhub.productservice.product.domain.ProductSize.*;
+import static com.athenhub.productservice.product.domain.ProductSize.L;
 import static com.athenhub.productservice.product.domain.ProductSize.M;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,13 +20,10 @@ class ProductVariantTest {
     ProductVariant productVariant = ProductVariant.create(request);
 
     // then
-    assertThat(productVariant)
-        .satisfies(
-            pv -> {
-              assertThat(pv.getId()).isNotNull();
-              assertThat(pv.getColor()).isEqualTo(RED);
-              assertThat(pv.getSize()).isEqualTo(M);
-            });
+    assertThat(productVariant);
+    assertThat(productVariant.getId()).isNotNull();
+    assertThat(productVariant.getColor()).isEqualTo(RED);
+    assertThat(productVariant.getSize()).isEqualTo(M);
   }
 
   @Test
