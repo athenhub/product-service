@@ -37,20 +37,17 @@ class ProductTest {
     product.addVariant(productVariant2);
 
     // then
-    assertThat(product)
-        .satisfies(
-            p -> {
-              assertThat(p.getType()).isEqualTo(OPTION);
-              assertThat(p.getId()).isNotNull();
-              assertThat(p.getHubId()).isNotNull();
-              assertThat(p.getVendorId()).isNotNull();
-              assertThat(p.getPrice()).isNotNull();
-              assertThat(p.getStatus()).isEqualTo(ProductStatus.DRAFT);
-              assertThat(p.getVariants()).hasSize(2);
-              assertThat(p.getVariants())
-                  .extracting("color", "size")
-                  .containsExactlyInAnyOrder(tuple(RED, M), Tuple.tuple(BLUE, L));
-            });
+    assertThat(product);
+    assertThat(product.getType()).isEqualTo(OPTION);
+    assertThat(product.getId()).isNotNull();
+    assertThat(product.getHubId()).isNotNull();
+    assertThat(product.getVendorId()).isNotNull();
+    assertThat(product.getPrice()).isNotNull();
+    assertThat(product.getStatus()).isEqualTo(ProductStatus.DRAFT);
+    assertThat(product.getVariants()).hasSize(2);
+    assertThat(product.getVariants())
+        .extracting("color", "size")
+        .containsExactlyInAnyOrder(tuple(RED, M), Tuple.tuple(BLUE, L));
   }
 
   @Test
@@ -66,13 +63,10 @@ class ProductTest {
     product.updateBasic(new ProductBasicUpdateRequest(changedHubId, changedVendorID, changedPrice));
 
     // then
-    assertThat(product)
-        .satisfies(
-            p -> {
-              assertThat(product.getHubId()).isEqualTo(HubId.of(changedHubId));
-              assertThat(product.getVendorId()).isEqualTo(VendorId.of(changedVendorID));
-              assertThat(product.getPrice()).isEqualTo(Price.of(changedPrice));
-            });
+    assertThat(product);
+    assertThat(product.getHubId()).isEqualTo(HubId.of(changedHubId));
+    assertThat(product.getVendorId()).isEqualTo(VendorId.of(changedVendorID));
+    assertThat(product.getPrice()).isEqualTo(Price.of(changedPrice));
   }
 
   @Test
