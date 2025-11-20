@@ -1,9 +1,9 @@
 package com.athenhub.productservice.product.domain.vo;
 
 import jakarta.persistence.Embeddable;
-import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -31,6 +31,7 @@ import lombok.NoArgsConstructor;
  * @since 1.0.0
  */
 @Embeddable
+@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class HubId {
 
@@ -69,19 +70,5 @@ public class HubId {
   @Override
   public String toString() {
     return id.toString();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    HubId hubId = (HubId) o;
-    return Objects.equals(id, hubId.id);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(id);
   }
 }
