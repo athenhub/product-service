@@ -1,7 +1,7 @@
 package com.athenhub.productservice.product.domain;
 
 import com.athenhub.productservice.global.domain.AbstractAuditEntity;
-import com.athenhub.productservice.product.domain.dto.ProductVariantCreateRequest;
+import com.athenhub.productservice.product.domain.dto.ProductVariantCreateCommand;
 import com.athenhub.productservice.product.domain.vo.ProductColor;
 import com.athenhub.productservice.product.domain.vo.ProductSize;
 import com.athenhub.productservice.product.domain.vo.ProductVariantId;
@@ -68,7 +68,7 @@ public class ProductVariant extends AbstractAuditEntity {
    *
    * <p>외부에서는 Product를 통해 추가되므로 이 메서드는 Product 내부에서 사용된다.
    */
-  public static ProductVariant create(ProductVariantCreateRequest request) {
+  public static ProductVariant create(ProductVariantCreateCommand request) {
     ProductVariant productVariant = new ProductVariant();
     productVariant.id = ProductVariantId.create();
     productVariant.color = request.color();
