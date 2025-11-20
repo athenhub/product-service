@@ -1,6 +1,7 @@
 package com.athenhub.productservice.product.domain;
 
 import com.athenhub.productservice.global.domain.AbstractAuditEntity;
+import com.athenhub.productservice.product.domain.dto.ProductVariantCreateRequest;
 import com.athenhub.productservice.product.domain.vo.ProductVariantId;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -56,20 +57,16 @@ public class ProductVariant extends AbstractAuditEntity {
   @Enumerated(EnumType.STRING)
   private ProductSize size;
 
-  /** 옵션 생성자 (도메인 내부용) */
-  private ProductVariant(ProductVariantId id, ProductColor color, ProductSize size) {
-    this.id = id;
-    this.color = color;
-    this.size = size;
-  }
-
   /**
    * 옵션 생성 팩토리 메서드.
    *
    * <p>외부에서는 Product를 통해 추가되므로 이 메서드는 Product 내부에서 사용된다.
    */
-  public static ProductVariant create(ProductColor color, ProductSize size) {
-    return new ProductVariant(ProductVariantId.create(), color, size);
+  public static ProductVariant create(ProductVariantCreateRequest request) {
+    ProductVariant productVariant = new ProductVariant();
+    productVariant.color = request.color();
+    productVariant.size = request.size();
+    return productVariant;
   }
 
   /**
