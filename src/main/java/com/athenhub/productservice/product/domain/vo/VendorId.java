@@ -36,7 +36,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class VendorId {
 
-  /** 업체 식별자(UUID) */
+  /** 업체 식별자(UUID). */
   private UUID id;
 
   /** 내부 생성자 — 외부에서는 정적 팩토리 메서드를 사용하도록 강제한다. */
@@ -66,7 +66,9 @@ public class VendorId {
 
   @Override
   public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) return false;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     VendorId vendorId = (VendorId) o;
     return Objects.equals(id, vendorId.id);
   }

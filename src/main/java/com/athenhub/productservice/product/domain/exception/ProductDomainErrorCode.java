@@ -30,19 +30,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ProductDomainErrorCode implements ErrorCode {
 
-  /** 옵션을 찾을 수 없음 */
+  /** 옵션을 찾을 수 없음. */
   PRODUCT_VARIANT_NOT_FOUND(404, "PRODUCT_NOT_FOUND"),
 
-  /** 동일 옵션이 이미 존재함 */
+  /** 동일 옵션이 이미 존재함. */
   PRODUCT_VARIANT_ALREADY_EXIST(400, "PRODUCT_VARIANT_ALREADY_EXIST"),
 
-  /** 옵션 타입이 아닌 상품에 옵션 작업을 시도함 */
+  /** 옵션 타입이 아닌 상품에 옵션 작업을 시도함. */
   PRODUCT_VARIANT_NOT_SUPPORTED(400, "INVALID_PRODUCT_TYPE");
 
-  /** HTTP 상태 코드 */
+  /** HTTP 상태 코드. */
   private final int status;
 
-  /** 에러 코드 문자열 */
+  /** 에러 코드 문자열. */
   private final String code;
 
   @Override

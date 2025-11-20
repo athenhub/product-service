@@ -41,7 +41,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductId {
 
-  /** 상품의 고유 UUID */
+  /** 상품의 고유 UUID. */
   private UUID id;
 
   /**
@@ -85,7 +85,9 @@ public class ProductId {
 
   @Override
   public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) return false;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     ProductId productId = (ProductId) o;
     return Objects.equals(id, productId.id);
   }

@@ -3,13 +3,20 @@ package com.athenhub.productservice.product.domain;
 import com.athenhub.productservice.global.domain.AbstractAuditEntity;
 import com.athenhub.productservice.product.domain.dto.ProductVariantCreateRequest;
 import com.athenhub.productservice.product.domain.vo.ProductVariantId;
-import jakarta.persistence.*;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * ProductVariant (상품 옵션)
+ * ProductVariant (상품 옵션).
  *
  * <p>색상(Color), 사이즈(Size) 등 "옵션 하나"를 나타내는 도메인 엔티티이다.
  *
@@ -37,11 +44,11 @@ import lombok.NoArgsConstructor;
 @Getter
 public class ProductVariant extends AbstractAuditEntity {
 
-  /** 옵션 ID (Aggregate 내부 식별자) */
+  /** 옵션 ID (Aggregate 내부 식별자). */
   @EmbeddedId private ProductVariantId id;
 
   /**
-   * 이 옵션이 속한 상품 (Aggregate Root)
+   * 이 옵션이 속한 상품 (Aggregate Root).
    *
    * <p>옵션의 생명주기는 Product 생명주기를 따른다.
    */
@@ -49,11 +56,11 @@ public class ProductVariant extends AbstractAuditEntity {
   @JoinColumn(name = "product_id")
   private Product product;
 
-  /** 옵션 색상 */
+  /** 옵션 색상. */
   @Enumerated(EnumType.STRING)
   private ProductColor color;
 
-  /** 옵션 사이즈 */
+  /** 옵션 사이즈. */
   @Enumerated(EnumType.STRING)
   private ProductSize size;
 
@@ -71,7 +78,7 @@ public class ProductVariant extends AbstractAuditEntity {
   }
 
   /**
-   * 옵션 정보 변경 (색상/사이즈)
+   * 옵션 정보 변경 (색상/사이즈).
    *
    * <p>도메인 규칙: 반드시 Product Aggregate Root를 통해 호출되어야 한다.
    */
