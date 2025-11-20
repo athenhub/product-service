@@ -206,7 +206,7 @@ public class Product extends AbstractAuditEntity {
    *
    * @param activeOnly true면 삭제되지 않은 옵션만 조회, false면 전체 조회
    */
-  public List<ProductVariant> getVariants(boolean activeOnly) {
+  public List<ProductVariant> getVariantsByActive(boolean activeOnly) {
     if (!activeOnly) {
       return getVariants();
     }
