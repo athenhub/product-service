@@ -52,6 +52,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // spring-boot-docker-compose
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+
     // loki
     implementation 'com.github.loki4j:loki-logback-appender:2.0.0'
 
