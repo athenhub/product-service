@@ -42,6 +42,9 @@ public class Price {
 
   /** 내부 생성자. 금액은 절대 음수가 되어서는 안 되며, 필요한 경우 유효성 검증 확장 가능. */
   private Price(long amount) {
+    if (amount < 0) {
+      throw new IllegalArgumentException("Price.amount 값은 0 이상이여야 합니다.");
+    }
     this.amount = amount;
   }
 
@@ -52,9 +55,6 @@ public class Price {
    * @return Price 객체
    */
   public static Price of(long amount) {
-    if (amount < 0) {
-      throw new IllegalArgumentException("Price.amount 값은 0 이상이여야 합니다.");
-    }
     return new Price(amount);
   }
 
