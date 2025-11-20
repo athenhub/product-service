@@ -10,15 +10,15 @@ public class ProductFixture {
     return new ProductCreateRequest(UUID.randomUUID(), UUID.randomUUID(), 10_000L, type);
   }
 
-    public static Product create(
-            ProductCreateRequest productCreateRequest,
-            ProductVariantCreateRequest... productVariantCreateRequest) {
-        Product product = Product.create(productCreateRequest);
-        for (ProductVariantCreateRequest variantCreateRequest : productVariantCreateRequest) {
-            product.addVariant(ProductVariant.create(variantCreateRequest));
-        }
-        return product;
+  public static Product create(
+      ProductCreateRequest productCreateRequest,
+      ProductVariantCreateRequest... productVariantCreateRequest) {
+    Product product = Product.create(productCreateRequest);
+    for (ProductVariantCreateRequest variantCreateRequest : productVariantCreateRequest) {
+      product.addVariant(ProductVariant.create(variantCreateRequest));
     }
+    return product;
+  }
 
   public static Product createWithoutVariant() {
     ProductCreateRequest productCreateRequest = productCreateRequest(ProductType.OPTION);
