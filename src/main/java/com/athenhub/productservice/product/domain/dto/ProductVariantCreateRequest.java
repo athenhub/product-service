@@ -1,7 +1,7 @@
 package com.athenhub.productservice.product.domain.dto;
 
-import com.athenhub.productservice.product.domain.ProductColor;
-import com.athenhub.productservice.product.domain.ProductSize;
+import com.athenhub.productservice.product.domain.vo.ProductColor;
+import com.athenhub.productservice.product.domain.vo.ProductSize;
 
 /**
  * 상품 옵션(ProductVariant)을 생성하기 위해 사용되는 도메인 커맨드 객체.
