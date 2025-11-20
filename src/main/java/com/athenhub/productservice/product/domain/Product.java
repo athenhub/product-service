@@ -3,7 +3,10 @@ package com.athenhub.productservice.product.domain;
 import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.*;
 
 import com.athenhub.productservice.global.domain.AbstractAuditEntity;
-import com.athenhub.productservice.product.domain.dto.UpdateVariantCommand;
+import com.athenhub.productservice.product.domain.dto.ProductBasicUpdateRequest;
+import com.athenhub.productservice.product.domain.dto.ProductCreateRequest;
+import com.athenhub.productservice.product.domain.dto.ProductVariantDeleteRequest;
+import com.athenhub.productservice.product.domain.dto.ProductVariantUpdateRequest;
 import com.athenhub.productservice.product.domain.exception.ProductVariantNotSupportedException;
 import com.athenhub.productservice.product.domain.exception.VariantAlreadyExistsException;
 import com.athenhub.productservice.product.domain.exception.VariantNotFoundException;
@@ -25,16 +28,16 @@ import lombok.NoArgsConstructor;
  *
  * <ul>
  *   <li>상품 타입(ProductType)이 OPTION이 아닌 경우 옵션을 추가/수정/삭제할 수 없다.
- *   <li>동일한 옵션(Color + Size 조합)은 둘 이상 존재할 수 없다.
+ *   <li>동일한 옵션(Color + Size 조합)은 중복 생성될 수 없다.
  *   <li>옵션 삭제는 Soft Delete 방식으로 처리된다.
- *   <li>ProductVariant는 Aggregate Root(Product)를 통해서만 변경 가능하다.
+ *   <li>옵션(ProductVariant)은 항상 Product의 생명주기를 따른다.
  * </ul>
  *
  * <p>■ 상태 / 타입
  *
  * <ul>
- *   <li>{@link ProductStatus}: 상품의 판매/준비/품절 상태 관리
- *   <li>{@link ProductType}: 옵션 상품/단일 상품 여부
+ *   <li>{@link ProductStatus}: 상품의 판매/준비/품절 상태
+ *   <li>{@link ProductType}: 옵션 상품 여부 (NORMAL / OPTION)
  * </ul>
  *
  * @author 김지원
@@ -55,88 +58,78 @@ public class Product extends AbstractAuditEntity {
   /** 공급사 정보 */
   @Embedded private VendorId vendorId;
 
-  /** 상품 기본 가격 */
+  /** 기본 판매 가격 */
   @Embedded private Price price;
 
   /**
-   * 상품의 옵션 목록.
+   * 상품 옵션 목록.
    *
-   * <p>cascade = ALL + orphanRemoval = true : Product가 Aggregate Root이므로 Child Entity는 Product
-   * 생명주기를 따른다.
+   * <p>cascade = ALL + orphanRemoval = true: Product가 Aggregate Root이기 때문에 Child
+   * Entity(ProductVariant)의 생명주기는 Product가 관리한다.
    */
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ProductVariant> variants = new ArrayList<>();
 
-  /** 상품 판매 상태 */
+  /** 상품 상태 (예: DRAFT, ON_SALE, SOLD_OUT 등) */
   @Enumerated(EnumType.STRING)
   private ProductStatus status;
 
-  /** 상품 유형 (옵션상품인지 여부) */
+  /** 상품 유형 (단일상품 / 옵션상품) */
   @Enumerated(EnumType.STRING)
   private ProductType type;
 
   /**
-   * 상품 생성자 (도메인 내부 전용)
+   * 상품 생성 정적 팩토리 메서드.
    *
-   * @param id ProductId
-   * @param hubId 허브 정보
-   * @param vendorId 공급사 ID
-   * @param price 기본 가격
-   * @param type 상품 타입
+   * <p>외부에서 생성자를 직접 호출하지 못하도록 하고, 도메인 규칙을 강제하는 유일한 생성 지점이다.
+   *
+   * @param request 상품 생성 요청 정보
+   * @return 생성된 Product
    */
-  private Product(ProductId id, HubId hubId, VendorId vendorId, Price price, ProductType type) {
-    this.id = id;
-    this.hubId = hubId;
-    this.vendorId = vendorId;
-    this.price = price;
-    this.status = ProductStatus.DRAFT; // 최초 생성 시 기본 상태
-    this.type = type;
+  public static Product create(ProductCreateRequest request) {
+    Product product = new Product();
+    product.id = ProductId.create();
+    product.hubId = HubId.of(request.hubId());
+    product.vendorId = VendorId.of(request.vendorId());
+    product.price = Price.of(request.price());
+    product.type = request.type();
+    product.status = ProductStatus.DRAFT; // 최초 생성 시 기본 상태
+    return product;
   }
 
   /**
-   * 상품 정적 팩토리 메서드.
+   * 옵션 정보 수정.
    *
-   * <p>외부에서 Product 생성을 의도적으로 제한하고 도메인 생성 규칙을 강제한다.
+   * @param request 옵션 수정 요청 정보 (색상/사이즈)
+   * @throws ProductVariantNotSupportedException 옵션 상품이 아닌 경우
+   * @throws VariantNotFoundException 대상 옵션이 없는 경우
    */
-  public static Product create(HubId hubId, VendorId vendorId, Price price, ProductType type) {
-    return new Product(ProductId.create(), hubId, vendorId, price, type);
-  }
-
-  /**
-   * 옵션 수정.
-   *
-   * @param variantId 수정할 옵션의 ID
-   * @param command 색상/사이즈 변경 요청 정보
-   */
-  public void updateVariant(ProductVariantId variantId, UpdateVariantCommand command) {
+  public void updateVariant(ProductVariantUpdateRequest request) {
     ensureOptionType();
-    getVariant(variantId).update(command.color(), command.size());
+    getVariant(ProductVariantId.of(request.productVariantId()))
+        .update(request.color(), request.size());
   }
 
   /**
-   * 상품 기본 정보 변경.
+   * 상품 기본 정보 변경(허브/공급사/기본가격).
    *
-   * <p>허브/공급사/기본가격 변경
+   * @param request 수정 요청 정보
    */
-  public void updateBasic(HubId hubId, VendorId vendorId, Price price) {
-    this.hubId = hubId;
-    this.vendorId = vendorId;
-    this.price = price;
+  public void updateBasic(ProductBasicUpdateRequest request) {
+    this.hubId = HubId.of(request.hubId());
+    this.vendorId = VendorId.of(request.vendorId());
+    this.price = Price.of(request.price());
   }
 
-  /**
-   * 상품 유형 변경 (OPTION / NORMAL 등)
-   *
-   * <p>도메인 규칙이 필요하다면 ensure 로직 추가 가능
-   */
+  /** 상품 유형 변경 (NORMAL ↔ OPTION) */
   public void updateType(ProductType type) {
     this.type = type;
   }
 
   /**
-   * 상품 상태 변경 (DRAFT → READY → SELL → SOLD_OUT ...)
+   * 상품 상태 변경 (DRAFT → ON_SALE, SOLD_OUT 등).
    *
-   * <p>상태 전이 규칙이 필요하면 여기에서 검증 가능
+   * <p>상태 전이 규칙이 필요하면 이곳에서 처리한다.
    */
   public void updateStatus(ProductStatus status) {
     this.status = status;
@@ -148,34 +141,38 @@ public class Product extends AbstractAuditEntity {
    * <p>■ 도메인 규칙
    *
    * <ul>
-   *   <li>옵션 상품(ProductType.OPTION)이 아니면 추가할 수 없다.
-   *   <li>이미 존재하는 옵션(Color + Size 조합)은 추가할 수 없다.
+   *   <li>상품 타입이 OPTION이 아니면 추가 불가
+   *   <li>동일한 옵션(Color + Size)이 존재하면 추가 불가
    * </ul>
    *
    * @param addVariant 추가할 옵션
+   * @throws ProductVariantNotSupportedException 옵션 상품이 아닌 경우
+   * @throws VariantAlreadyExistsException 동일 옵션이 이미 존재하는 경우
    */
   public void addVariant(ProductVariant addVariant) {
     ensureOptionType();
     ensureVariantNotExists(addVariant);
-    addVariant.assignTo(this);
+
+    addVariant.assignTo(this); // 연관관계 설정
     this.variants.add(addVariant);
   }
 
   /**
    * 옵션 삭제 (Soft Delete).
    *
-   * @param variantId 삭제할 옵션 ID
-   * @param username 삭제 수행자
+   * @param request 삭제 요청 정보
+   * @throws ProductVariantNotSupportedException 옵션 상품이 아닌 경우
+   * @throws VariantNotFoundException 해당 옵션이 없는 경우
    */
-  public void removeVariant(ProductVariantId variantId, String username) {
+  public void removeVariant(ProductVariantDeleteRequest request) {
     ensureOptionType();
-    getVariant(variantId).delete(username);
+    getVariant(ProductVariantId.of(request.productVariantId())).delete(request.username());
   }
 
   /**
    * 옵션 목록 조회.
    *
-   * @param activeOnly true면 삭제되지 않은 옵션만 반환, false면 전체 반환
+   * @param activeOnly true면 삭제되지 않은 옵션만 조회, false면 전체 조회
    */
   public List<ProductVariant> getVariants(boolean activeOnly) {
     if (!activeOnly) {
@@ -185,9 +182,9 @@ public class Product extends AbstractAuditEntity {
   }
 
   /**
-   * 옵션 단건 조회 (옵션이 없으면 예외)
+   * 옵션 단건 조회 (없으면 예외 발생)
    *
-   * @param variantId 조회할 옵션 ID
+   * @param variantId 옵션 ID
    * @return ProductVariant
    * @throws VariantNotFoundException 옵션이 존재하지 않을 경우
    */
@@ -202,11 +199,9 @@ public class Product extends AbstractAuditEntity {
   }
 
   /**
-   * 도메인 규칙: 옵션 상품인지 검증.
+   * 도메인 규칙: 옵션 상품 여부 검증.
    *
-   * <p>OPTION 타입이 아닌 상품은 옵션 기능을 사용할 수 없다.
-   *
-   * @throws ProductVariantNotSupportedException
+   * @throws ProductVariantNotSupportedException 옵션 상품이 아닌 경우
    */
   private void ensureOptionType() {
     if (this.type != ProductType.OPTION) {
@@ -215,10 +210,10 @@ public class Product extends AbstractAuditEntity {
   }
 
   /**
-   * 도메인 규칙: 동일 옵션(Color + Size)이 이미 존재하는지 검사.
+   * 도메인 규칙: 동일 옵션(Color + Size) 중복 여부 검사.
    *
    * @param addVariant 추가하려는 옵션
-   * @throws VariantAlreadyExistsException 이미 동일 옵션이 존재할 경우
+   * @throws VariantAlreadyExistsException 동일 조합이 이미 존재할 경우
    */
   private void ensureVariantNotExists(ProductVariant addVariant) {
     if (variants.stream().anyMatch(v -> v.isSameOption(addVariant))) {
