@@ -21,10 +21,10 @@ import java.util.UUID;
  * </ul>
  *
  * @param productVariantId 수정할 옵션 ID(UUID)
- * @param size 변경할 옵션의 사이즈({@link ProductSize})
  * @param color 변경할 옵션의 색상({@link ProductColor})
+ * @param size 변경할 옵션의 사이즈({@link ProductSize})
  * @author 김지원
  * @since 1.0.0
  */
 public record ProductVariantUpdateRequest(
-    UUID productVariantId, ProductSize size, ProductColor color) {}
+    UUID productVariantId, ProductColor color, ProductSize size) {}

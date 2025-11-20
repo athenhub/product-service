@@ -23,4 +23,4 @@ import java.util.UUID;
  * @author 김지원
  * @since 1.0.0
  */
-public record ProductVariantDeleteRequest(UUID productVariantId, String username) {}
+public record ProductVariantRemoveRequest(UUID productVariantId, String username) {}

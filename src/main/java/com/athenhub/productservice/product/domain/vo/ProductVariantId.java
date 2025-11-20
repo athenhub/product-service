@@ -1,6 +1,7 @@
 package com.athenhub.productservice.product.domain.vo;
 
 import jakarta.persistence.Embeddable;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -74,5 +75,17 @@ public class ProductVariantId {
    */
   public static ProductVariantId create() {
     return new ProductVariantId(UUID.randomUUID());
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    ProductVariantId that = (ProductVariantId) o;
+    return Objects.equals(id, that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(id);
   }
 }

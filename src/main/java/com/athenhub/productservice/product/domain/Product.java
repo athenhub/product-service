@@ -5,7 +5,7 @@ import static com.athenhub.productservice.product.domain.exception.ProductDomain
 import com.athenhub.productservice.global.domain.AbstractAuditEntity;
 import com.athenhub.productservice.product.domain.dto.ProductBasicUpdateRequest;
 import com.athenhub.productservice.product.domain.dto.ProductCreateRequest;
-import com.athenhub.productservice.product.domain.dto.ProductVariantDeleteRequest;
+import com.athenhub.productservice.product.domain.dto.ProductVariantRemoveRequest;
 import com.athenhub.productservice.product.domain.dto.ProductVariantUpdateRequest;
 import com.athenhub.productservice.product.domain.exception.ProductVariantNotSupportedException;
 import com.athenhub.productservice.product.domain.exception.VariantAlreadyExistsException;
@@ -67,6 +67,7 @@ public class Product extends AbstractAuditEntity {
    * <p>cascade = ALL + orphanRemoval = true: Product가 Aggregate Root이기 때문에 Child
    * Entity(ProductVariant)의 생명주기는 Product가 관리한다.
    */
+  @Getter(AccessLevel.NONE)
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ProductVariant> variants = new ArrayList<>();
 
@@ -98,16 +99,21 @@ public class Product extends AbstractAuditEntity {
   }
 
   /**
-   * 옵션 정보 수정.
+   * 상품에 포함된 옵션(Variant) 목록을 반환한다.
    *
-   * @param request 옵션 수정 요청 정보 (색상/사이즈)
-   * @throws ProductVariantNotSupportedException 옵션 상품이 아닌 경우
-   * @throws VariantNotFoundException 대상 옵션이 없는 경우
+   * <p>반환되는 리스트는 불변(Immutable) 리스트
+   *
+   * <p>주의:
+   *
+   * <ul>
+   *   <li>리스트 자체는 불변이지만, 각 Variant 엔티티는 변경 가능한 객체이다.
+   *   <li>Option 추가/삭제 등 컬렉션 변경은 반드시 Product Aggregate Root 메서드를 통해서만 가능하다.
+   * </ul>
+   *
+   * @return 옵션 목록의 불변 리스트
    */
-  public void updateVariant(ProductVariantUpdateRequest request) {
-    ensureOptionType();
-    getVariant(ProductVariantId.of(request.productVariantId()))
-        .update(request.color(), request.size());
+  public List<ProductVariant> getVariants() {
+    return List.copyOf(variants);
   }
 
   /**
@@ -122,16 +128,16 @@ public class Product extends AbstractAuditEntity {
   }
 
   /** 상품 유형 변경 (NORMAL ↔ OPTION) */
-  public void updateType(ProductType type) {
+  public void changeType(ProductType type) {
     this.type = type;
   }
 
   /**
    * 상품 상태 변경 (DRAFT → ON_SALE, SOLD_OUT 등).
    *
-   * <p>상태 전이 규칙이 필요하면 이곳에서 처리한다.
+   * <p>TODO 상태 전이 규칙이 필요하면 이곳에서 처리한다.
    */
-  public void updateStatus(ProductStatus status) {
+  public void changeStatus(ProductStatus status) {
     this.status = status;
   }
 
@@ -158,13 +164,26 @@ public class Product extends AbstractAuditEntity {
   }
 
   /**
+   * 옵션 정보 수정.
+   *
+   * @param request 옵션 수정 요청 정보 (색상/사이즈)
+   * @throws ProductVariantNotSupportedException 옵션 상품이 아닌 경우
+   * @throws VariantNotFoundException 대상 옵션이 없는 경우
+   */
+  public void updateVariant(ProductVariantUpdateRequest request) {
+    ensureOptionType();
+    getVariant(ProductVariantId.of(request.productVariantId()))
+        .update(request.color(), request.size());
+  }
+
+  /**
    * 옵션 삭제 (Soft Delete).
    *
    * @param request 삭제 요청 정보
    * @throws ProductVariantNotSupportedException 옵션 상품이 아닌 경우
    * @throws VariantNotFoundException 해당 옵션이 없는 경우
    */
-  public void removeVariant(ProductVariantDeleteRequest request) {
+  public void removeVariant(ProductVariantRemoveRequest request) {
     ensureOptionType();
     getVariant(ProductVariantId.of(request.productVariantId())).delete(request.username());
   }
@@ -176,7 +195,7 @@ public class Product extends AbstractAuditEntity {
    */
   public List<ProductVariant> getVariants(boolean activeOnly) {
     if (!activeOnly) {
-      return List.copyOf(variants);
+      return getVariants();
     }
     return variants.stream().filter(v -> !v.isDeleted()).toList();
   }
