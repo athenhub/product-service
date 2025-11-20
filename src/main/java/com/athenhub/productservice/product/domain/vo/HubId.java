@@ -1,5 +1,6 @@
 package com.athenhub.productservice.product.domain.vo;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.util.Objects;
 import java.util.UUID;
@@ -37,6 +38,7 @@ import lombok.NoArgsConstructor;
 public class HubId {
 
   /** 허브를 식별하는 UUID. */
+  @Column(name = "hub_id", nullable = false)
   private UUID id;
 
   /**

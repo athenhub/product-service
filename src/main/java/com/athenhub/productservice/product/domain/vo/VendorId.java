@@ -1,5 +1,6 @@
 package com.athenhub.productservice.product.domain.vo;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.util.Objects;
 import java.util.UUID;
@@ -39,6 +40,7 @@ import lombok.NoArgsConstructor;
 public class VendorId {
 
   /** 업체 식별자(UUID). */
+  @Column(name = "vendor_id", nullable = false)
   private UUID id;
 
   /**
