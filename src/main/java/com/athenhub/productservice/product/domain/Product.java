@@ -237,7 +237,7 @@ public class Product extends AbstractAuditEntity {
    */
   private void ensureOptionType() {
     if (this.type != ProductType.OPTION) {
-      throw new ProductVariantNotSupportedException(PRODUCT_VARIANT_NOT_SUPPORTED, this.type);
+      throw new ProductVariantNotSupportedException(PRODUCT_VARIANT_NOT_SUPPORTED);
     }
   }
 
