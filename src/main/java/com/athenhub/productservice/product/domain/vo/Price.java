@@ -2,7 +2,7 @@ package com.athenhub.productservice.product.domain.vo;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import java.util.Objects;
+import lombok.EqualsAndHashCode;
 
 /**
  * 금액(Price)을 표현하는 값 객체(Value Object)이다.
@@ -28,6 +28,7 @@ import java.util.Objects;
  * @since 1.0.0
  */
 @Embeddable
+@EqualsAndHashCode
 public class Price {
 
   /** 금액 값. */
@@ -77,21 +78,5 @@ public class Price {
       throw new IllegalStateException("Price.amount 값이 null 값입니다.");
     }
     return amount;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof Price other)) {
-      return false;
-    }
-    return Objects.equals(amount, other.amount);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(amount);
   }
 }
