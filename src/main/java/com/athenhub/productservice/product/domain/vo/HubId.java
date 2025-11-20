@@ -1,6 +1,7 @@
 package com.athenhub.productservice.product.domain.vo;
 
 import jakarta.persistence.Embeddable;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -38,9 +39,13 @@ public class HubId {
   /** 허브를 식별하는 UUID. */
   private UUID id;
 
-  /** 내부 생성자. 외부 생성은 정적 팩토리 메서드를 통해 제한한다. */
+  /**
+   * 내부 생성자. 외부 생성은 정적 팩토리 메서드를 통해 제한한다.
+   *
+   * @param id 값은 null 을 허용하지 않는다.
+   */
   private HubId(UUID id) {
-    this.id = id;
+    this.id = Objects.requireNonNull(id);
   }
 
   /**
