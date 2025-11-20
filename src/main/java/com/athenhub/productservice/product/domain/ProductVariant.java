@@ -64,6 +64,7 @@ public class ProductVariant extends AbstractAuditEntity {
    */
   public static ProductVariant create(ProductVariantCreateRequest request) {
     ProductVariant productVariant = new ProductVariant();
+    productVariant.id = ProductVariantId.create();
     productVariant.color = request.color();
     productVariant.size = request.size();
     return productVariant;

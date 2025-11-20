@@ -1,10 +1,16 @@
 package com.athenhub.productservice.product.domain.vo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
 public class PriceTest {
+
+  @Test
+  void of_negative_value() {
+    assertThatThrownBy(() -> Price.of(-1L)).isInstanceOf(IllegalArgumentException.class);
+  }
 
   @Test
   void add() {

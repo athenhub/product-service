@@ -51,6 +51,9 @@ public class Price {
    * @return Price 객체
    */
   public static Price of(long amount) {
+    if (amount < 0) {
+      throw new IllegalArgumentException("Price.amount 값은 0 이상이여야 합니다.");
+    }
     return new Price(amount);
   }
 
