@@ -1,37 +1,41 @@
 package com.athenhub.productservice.product.domain;
 
-import com.athenhub.productservice.product.domain.dto.ProductCreateRequest;
-import com.athenhub.productservice.product.domain.dto.ProductVariantCreateRequest;
+import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
+import com.athenhub.productservice.product.domain.dto.ProductVariantCreateCommand;
+import com.athenhub.productservice.product.domain.vo.HubId;
+import com.athenhub.productservice.product.domain.vo.Price;
 import com.athenhub.productservice.product.domain.vo.ProductColor;
 import com.athenhub.productservice.product.domain.vo.ProductSize;
+import com.athenhub.productservice.product.domain.vo.VendorId;
 import java.util.UUID;
 
 public class ProductFixture {
 
-  public static ProductCreateRequest productCreateRequest(ProductType type) {
-    return new ProductCreateRequest(UUID.randomUUID(), UUID.randomUUID(), 10_000L, type);
+  public static ProductCreateCommand productCreateCommand(ProductType type) {
+    return new ProductCreateCommand(
+        HubId.of(UUID.randomUUID()), VendorId.of(UUID.randomUUID()), Price.of(10_000L), type);
   }
 
-  public static ProductVariantCreateRequest productVariantCreateRequest(String color, String size) {
-    return new ProductVariantCreateRequest(ProductColor.of(color), ProductSize.of(size));
+  public static ProductVariantCreateCommand productVariantCreateCommand(String color, String size) {
+    return new ProductVariantCreateCommand(ProductColor.of(color), ProductSize.of(size));
   }
 
   public static Product create(
-      ProductCreateRequest productCreateRequest,
-      ProductVariantCreateRequest... productVariantCreateRequest) {
+      ProductCreateCommand productCreateRequest,
+      ProductVariantCreateCommand... productVariantCreateRequest) {
     Product product = Product.create(productCreateRequest);
-    for (ProductVariantCreateRequest variantCreateRequest : productVariantCreateRequest) {
+    for (ProductVariantCreateCommand variantCreateRequest : productVariantCreateRequest) {
       product.addVariant(ProductVariant.create(variantCreateRequest));
     }
     return product;
   }
 
   public static Product createProductWithoutVariant() {
-    ProductCreateRequest productCreateRequest = productCreateRequest(ProductType.OPTION);
+    ProductCreateCommand productCreateRequest = productCreateCommand(ProductType.OPTION);
     Product product = Product.create(productCreateRequest);
-    ProductVariant productVariant1 = ProductVariant.create(productVariantCreateRequest("RED", "M"));
+    ProductVariant productVariant1 = ProductVariant.create(productVariantCreateCommand("RED", "M"));
     ProductVariant productVariant2 =
-        ProductVariant.create(productVariantCreateRequest("BLACK", "M"));
+        ProductVariant.create(productVariantCreateCommand("BLACK", "M"));
     product.addVariant(productVariant1);
     product.addVariant(productVariant2);
 
@@ -39,7 +43,7 @@ public class ProductFixture {
   }
 
   public static Product createProductWithVariant() {
-    ProductCreateRequest productCreateRequest = productCreateRequest(ProductType.SIMPLE);
+    ProductCreateCommand productCreateRequest = productCreateCommand(ProductType.SIMPLE);
     return Product.create(productCreateRequest);
   }
 }

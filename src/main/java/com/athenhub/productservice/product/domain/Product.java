@@ -1,30 +1,17 @@
 package com.athenhub.productservice.product.domain;
 
-import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.PRODUCT_VARIANT_ALREADY_EXIST;
-import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.PRODUCT_VARIANT_NOT_FOUND;
-import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.PRODUCT_VARIANT_NOT_SUPPORTED;
+import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.*;
 
 import com.athenhub.productservice.global.domain.AbstractAuditEntity;
-import com.athenhub.productservice.product.domain.dto.ProductBasicUpdateRequest;
-import com.athenhub.productservice.product.domain.dto.ProductCreateRequest;
-import com.athenhub.productservice.product.domain.dto.ProductVariantRemoveRequest;
-import com.athenhub.productservice.product.domain.dto.ProductVariantUpdateRequest;
+import com.athenhub.productservice.product.domain.dto.ProductBasicUpdateCommand;
+import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
+import com.athenhub.productservice.product.domain.dto.ProductVariantRemoveCommand;
+import com.athenhub.productservice.product.domain.dto.ProductVariantUpdateCommand;
 import com.athenhub.productservice.product.domain.exception.ProductVariantNotSupportedException;
 import com.athenhub.productservice.product.domain.exception.VariantAlreadyExistsException;
 import com.athenhub.productservice.product.domain.exception.VariantNotFoundException;
-import com.athenhub.productservice.product.domain.vo.HubId;
-import com.athenhub.productservice.product.domain.vo.Price;
-import com.athenhub.productservice.product.domain.vo.ProductId;
-import com.athenhub.productservice.product.domain.vo.ProductVariantId;
-import com.athenhub.productservice.product.domain.vo.VendorId;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.athenhub.productservice.product.domain.vo.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -97,16 +84,16 @@ public class Product extends AbstractAuditEntity {
    *
    * <p>외부에서 생성자를 직접 호출하지 못하도록 하고, 도메인 규칙을 강제하는 유일한 생성 지점이다.
    *
-   * @param request 상품 생성 요청 정보
+   * @param command 상품 생성 요청 정보
    * @return 생성된 Product
    */
-  public static Product create(ProductCreateRequest request) {
+  public static Product create(ProductCreateCommand command) {
     Product product = new Product();
     product.id = ProductId.create();
-    product.hubId = HubId.of(request.hubId());
-    product.vendorId = VendorId.of(request.vendorId());
-    product.price = Price.of(request.price());
-    product.type = request.type();
+    product.hubId = command.hubId();
+    product.vendorId = command.vendorId();
+    product.price = command.price();
+    product.type = command.type();
     product.status = ProductStatus.DRAFT; // 최초 생성 시 기본 상태
     return product;
   }
@@ -132,12 +119,12 @@ public class Product extends AbstractAuditEntity {
   /**
    * 상품 기본 정보 변경(허브/공급사/기본가격).
    *
-   * @param request 수정 요청 정보
+   * @param command 수정 요청 정보
    */
-  public void updateBasic(ProductBasicUpdateRequest request) {
-    this.hubId = HubId.of(request.hubId());
-    this.vendorId = VendorId.of(request.vendorId());
-    this.price = Price.of(request.price());
+  public void updateBasic(ProductBasicUpdateCommand command) {
+    this.hubId = command.hubId();
+    this.vendorId = command.vendorId();
+    this.price = command.price();
   }
 
   /** 상품 유형 변경 (NORMAL ↔ OPTION). */
@@ -179,26 +166,25 @@ public class Product extends AbstractAuditEntity {
   /**
    * 옵션 정보 수정.
    *
-   * @param request 옵션 수정 요청 정보 (색상/사이즈)
+   * @param command 옵션 수정 요청 정보 (색상/사이즈)
    * @throws ProductVariantNotSupportedException 옵션 상품이 아닌 경우
    * @throws VariantNotFoundException 대상 옵션이 없는 경우
    */
-  public void updateVariant(ProductVariantUpdateRequest request) {
+  public void updateVariant(ProductVariantUpdateCommand command) {
     ensureOptionType();
-    getVariant(ProductVariantId.of(request.productVariantId()))
-        .update(request.color(), request.size());
+    getVariant(command.productVariantId()).update(command.color(), command.size());
   }
 
   /**
    * 옵션 삭제 (Soft Delete).
    *
-   * @param request 삭제 요청 정보
+   * @param command 삭제 요청 정보
    * @throws ProductVariantNotSupportedException 옵션 상품이 아닌 경우
    * @throws VariantNotFoundException 해당 옵션이 없는 경우
    */
-  public void removeVariant(ProductVariantRemoveRequest request) {
+  public void removeVariant(ProductVariantRemoveCommand command) {
     ensureOptionType();
-    getVariant(ProductVariantId.of(request.productVariantId())).delete(request.username());
+    getVariant(command.productVariantId()).delete(command.username());
   }
 
   /**

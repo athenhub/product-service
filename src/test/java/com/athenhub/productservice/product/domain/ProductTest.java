@@ -1,7 +1,7 @@
 package com.athenhub.productservice.product.domain;
 
-import static com.athenhub.productservice.product.domain.ProductFixture.productCreateRequest;
-import static com.athenhub.productservice.product.domain.ProductFixture.productVariantCreateRequest;
+import static com.athenhub.productservice.product.domain.ProductFixture.productCreateCommand;
+import static com.athenhub.productservice.product.domain.ProductFixture.productVariantCreateCommand;
 import static com.athenhub.productservice.product.domain.ProductType.OPTION;
 import static com.athenhub.productservice.product.domain.ProductType.SIMPLE;
 import static org.assertj.core.api.Assertions.*;
@@ -21,14 +21,14 @@ class ProductTest {
   @Test
   void create() {
     // given
-    ProductCreateRequest productRequest = productCreateRequest(OPTION);
-    ProductVariantCreateRequest productVariantRequest1 = productVariantCreateRequest("RED", "M");
-    ProductVariantCreateRequest productVariantRequest2 = productVariantCreateRequest("BLUE", "L");
+    ProductCreateCommand productCommand = productCreateCommand(OPTION);
+    ProductVariantCreateCommand productVariantRequest1 = productVariantCreateCommand("RED", "M");
+    ProductVariantCreateCommand productVariantRequest2 = productVariantCreateCommand("BLUE", "L");
     ProductVariant productVariant1 = ProductVariant.create(productVariantRequest1);
     ProductVariant productVariant2 = ProductVariant.create(productVariantRequest2);
 
     // when
-    Product product = Product.create(productRequest);
+    Product product = Product.create(productCommand);
     product.addVariant(productVariant1);
     product.addVariant(productVariant2);
 
@@ -49,26 +49,26 @@ class ProductTest {
   @Test
   void updateBasic() {
     // given
-    ProductCreateRequest productCreateRequest = productCreateRequest(SIMPLE);
+    ProductCreateCommand productCreateRequest = productCreateCommand(SIMPLE);
     Product product = Product.create(productCreateRequest);
 
     // when
-    UUID changedHubId = UUID.randomUUID();
-    UUID changedVendorID = UUID.randomUUID();
-    long changedPrice = 100;
-    product.updateBasic(new ProductBasicUpdateRequest(changedHubId, changedVendorID, changedPrice));
+    HubId changedHubId = HubId.of(UUID.randomUUID());
+    VendorId changedVendorID = VendorId.of(UUID.randomUUID());
+    Price changedPrice = Price.of(1000);
+    product.updateBasic(new ProductBasicUpdateCommand(changedHubId, changedVendorID, changedPrice));
 
     // then
     assertThat(product);
-    assertThat(product.getHubId()).isEqualTo(HubId.of(changedHubId));
-    assertThat(product.getVendorId()).isEqualTo(VendorId.of(changedVendorID));
-    assertThat(product.getPrice()).isEqualTo(Price.of(changedPrice));
+    assertThat(product.getHubId()).isEqualTo(changedHubId);
+    assertThat(product.getVendorId()).isEqualTo(changedVendorID);
+    assertThat(product.getPrice()).isEqualTo(changedPrice);
   }
 
   @Test
   void changeType() {
     // given
-    ProductCreateRequest productCreateRequest = productCreateRequest(SIMPLE);
+    ProductCreateCommand productCreateRequest = productCreateCommand(SIMPLE);
     Product product = Product.create(productCreateRequest);
 
     // when
@@ -82,8 +82,8 @@ class ProductTest {
   @Test
   void changeStatus() {
     // given
-    ProductCreateRequest productCreateRequest = productCreateRequest(SIMPLE);
-    Product product = Product.create(productCreateRequest);
+    ProductCreateCommand productCreateCommand = productCreateCommand(SIMPLE);
+    Product product = Product.create(productCreateCommand);
 
     // when
     ProductStatus changedStatus = ProductStatus.HIDDEN;
@@ -96,10 +96,10 @@ class ProductTest {
   @Test
   void addVariant() {
     // given
-    Product product = Product.create(productCreateRequest(OPTION));
-    ProductVariant productVariant1 = ProductVariant.create(productVariantCreateRequest("RED", "M"));
+    Product product = Product.create(productCreateCommand(OPTION));
+    ProductVariant productVariant1 = ProductVariant.create(productVariantCreateCommand("RED", "M"));
     ProductVariant productVariant2 =
-        ProductVariant.create(productVariantCreateRequest("BLUE", "L"));
+        ProductVariant.create(productVariantCreateCommand("BLUE", "L"));
 
     // when
     product.addVariant(productVariant1);
@@ -115,8 +115,8 @@ class ProductTest {
   @Test
   void addVariant_withSimpleType() {
     // given
-    Product product = Product.create(productCreateRequest(SIMPLE));
-    ProductVariant productVariant = ProductVariant.create(productVariantCreateRequest("RED", "M"));
+    Product product = Product.create(productCreateCommand(SIMPLE));
+    ProductVariant productVariant = ProductVariant.create(productVariantCreateCommand("RED", "M"));
 
     // when & then
     assertThatThrownBy(() -> product.addVariant(productVariant))
@@ -128,13 +128,13 @@ class ProductTest {
     // given
     Product product =
         ProductFixture.create(
-            productCreateRequest(OPTION), productVariantCreateRequest("RED", "M"));
+            productCreateCommand(OPTION), productVariantCreateCommand("RED", "M"));
 
     // when & then
     assertThatThrownBy(
             () -> {
               ProductVariant productVariant2 =
-                  ProductVariant.create(productVariantCreateRequest("RED", "M"));
+                  ProductVariant.create(productVariantCreateCommand("RED", "M"));
               product.addVariant(productVariant2);
             })
         .isInstanceOf(VariantAlreadyExistsException.class);
@@ -143,15 +143,17 @@ class ProductTest {
   @Test
   void updateVariant_withSimpleType() {
     // given
-    Product product = Product.create(productCreateRequest(SIMPLE));
+    Product product = Product.create(productCreateCommand(SIMPLE));
 
     // when & then
     assertThatThrownBy(
             () -> {
-              ProductVariantUpdateRequest productVariantUpdateRequest =
-                  new ProductVariantUpdateRequest(
-                      UUID.randomUUID(), ProductColor.of("RED"), ProductSize.of("M"));
-              product.updateVariant(productVariantUpdateRequest);
+              ProductVariantUpdateCommand productVariantUpdateCommand =
+                  new ProductVariantUpdateCommand(
+                      ProductVariantId.of(UUID.randomUUID()),
+                      ProductColor.of("RED"),
+                      ProductSize.of("M"));
+              product.updateVariant(productVariantUpdateCommand);
             })
         .isInstanceOf(ProductVariantNotSupportedException.class);
   }
@@ -161,14 +163,16 @@ class ProductTest {
     // given
     Product product =
         ProductFixture.create(
-            productCreateRequest(OPTION), productVariantCreateRequest("RED", "M"));
+            productCreateCommand(OPTION), productVariantCreateCommand("RED", "M"));
 
     // when & then
     assertThatThrownBy(
             () -> {
-              ProductVariantUpdateRequest productVariantUpdateRequest =
-                  new ProductVariantUpdateRequest(
-                      UUID.randomUUID(), ProductColor.of("RED"), ProductSize.of("M"));
+              ProductVariantUpdateCommand productVariantUpdateRequest =
+                  new ProductVariantUpdateCommand(
+                      ProductVariantId.of(UUID.randomUUID()),
+                      ProductColor.of("RED"),
+                      ProductSize.of("M"));
               product.updateVariant(productVariantUpdateRequest);
             })
         .isInstanceOf(VariantNotFoundException.class);
@@ -177,11 +181,14 @@ class ProductTest {
   @Test
   void removeVariant_withSimpleType() {
     // given
-    Product product = Product.create(productCreateRequest(SIMPLE));
+    Product product = Product.create(productCreateCommand(SIMPLE));
 
     // when & then
     assertThatThrownBy(
-            () -> product.removeVariant(new ProductVariantRemoveRequest(UUID.randomUUID(), "test")))
+            () ->
+                product.removeVariant(
+                    new ProductVariantRemoveCommand(
+                        ProductVariantId.of(UUID.randomUUID()), "test")))
         .isInstanceOf(ProductVariantNotSupportedException.class);
   }
 
@@ -190,60 +197,65 @@ class ProductTest {
     // given
     Product product =
         ProductFixture.create(
-            productCreateRequest(OPTION), productVariantCreateRequest("RED", "M"));
+            productCreateCommand(OPTION), productVariantCreateCommand("RED", "M"));
 
     // when & then
     assertThatThrownBy(
-            () -> product.removeVariant(new ProductVariantRemoveRequest(UUID.randomUUID(), "test")))
+            () ->
+                product.removeVariant(
+                    new ProductVariantRemoveCommand(
+                        ProductVariantId.of(UUID.randomUUID()), "test")))
         .isInstanceOf(VariantNotFoundException.class);
   }
 
   @Test
   void getVariants_ByActive_activeOnlyTrue() {
     // given
-    ProductCreateRequest productRequest = productCreateRequest(OPTION);
-    ProductVariant productVariant1 = ProductVariant.create(productVariantCreateRequest("RED", "M"));
+    ProductCreateCommand productCommand = productCreateCommand(OPTION);
+    ProductVariant productVariant1 = ProductVariant.create(productVariantCreateCommand("RED", "M"));
     ProductVariant productVariant2 =
-        ProductVariant.create(productVariantCreateRequest("BLUE", "L"));
+        ProductVariant.create(productVariantCreateCommand("BLUE", "L"));
     ProductVariant productVariant3 =
-        ProductVariant.create(productVariantCreateRequest("GREEN", "L"));
-    Product product = Product.create(productRequest);
+        ProductVariant.create(productVariantCreateCommand("GREEN", "L"));
+
+    Product product = Product.create(productCommand);
     product.addVariant(productVariant1);
     product.addVariant(productVariant2);
     product.addVariant(productVariant3);
 
-    UUID deletedVariantId = productVariant3.getId().toUuid();
-    product.removeVariant(new ProductVariantRemoveRequest(deletedVariantId, "tset"));
+    ProductVariantId deletedVariantId = productVariant3.getId();
+    product.removeVariant(new ProductVariantRemoveCommand(deletedVariantId, "tset"));
 
     // when
     List<ProductVariant> variants = product.getVariantsByActive(true);
 
     assertThat(variants)
         .hasSize(2)
-        .extracting(v -> v.getId().toUuid())
+        .extracting(ProductVariant::getId)
         .doesNotContain(deletedVariantId);
   }
 
   @Test
   void getVariants_ByActive_activeOnlyFalse() {
     // given
-    ProductCreateRequest productRequest = productCreateRequest(OPTION);
-    ProductVariant productVariant1 = ProductVariant.create(productVariantCreateRequest("RED", "M"));
+    ProductCreateCommand productCommand = productCreateCommand(OPTION);
+    ProductVariant productVariant1 = ProductVariant.create(productVariantCreateCommand("RED", "M"));
     ProductVariant productVariant2 =
-        ProductVariant.create(productVariantCreateRequest("BLUE", "L"));
+        ProductVariant.create(productVariantCreateCommand("BLUE", "L"));
     ProductVariant productVariant3 =
-        ProductVariant.create(productVariantCreateRequest("GREEN", "L"));
-    Product product = Product.create(productRequest);
+        ProductVariant.create(productVariantCreateCommand("GREEN", "L"));
+
+    Product product = Product.create(productCommand);
     product.addVariant(productVariant1);
     product.addVariant(productVariant2);
     product.addVariant(productVariant3);
 
-    UUID deletedVariantId = productVariant3.getId().toUuid();
-    product.removeVariant(new ProductVariantRemoveRequest(deletedVariantId, "tset"));
+    ProductVariantId deletedVariantId = productVariant3.getId();
+    product.removeVariant(new ProductVariantRemoveCommand(deletedVariantId, "tset"));
 
     // when
     List<ProductVariant> variants = product.getVariantsByActive(false);
 
-    assertThat(variants).hasSize(3).extracting(v -> v.getId().toUuid()).contains(deletedVariantId);
+    assertThat(variants).hasSize(3).extracting(v -> v.getId()).contains(deletedVariantId);
   }
 }
