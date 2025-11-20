@@ -2,15 +2,10 @@ package com.athenhub.productservice.product.domain;
 
 import com.athenhub.productservice.global.domain.AbstractAuditEntity;
 import com.athenhub.productservice.product.domain.dto.ProductVariantCreateRequest;
+import com.athenhub.productservice.product.domain.vo.ProductColor;
+import com.athenhub.productservice.product.domain.vo.ProductSize;
 import com.athenhub.productservice.product.domain.vo.ProductVariantId;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -57,12 +52,10 @@ public class ProductVariant extends AbstractAuditEntity {
   private Product product;
 
   /** 옵션 색상. */
-  @Enumerated(EnumType.STRING)
-  private ProductColor color;
+  @Embedded private ProductColor color;
 
   /** 옵션 사이즈. */
-  @Enumerated(EnumType.STRING)
-  private ProductSize size;
+  @Embedded private ProductSize size;
 
   /**
    * 옵션 생성 팩토리 메서드.
@@ -94,7 +87,7 @@ public class ProductVariant extends AbstractAuditEntity {
    * @return true면 옵션 값이 동일함
    */
   public boolean isSameOption(ProductVariant variant) {
-    return this.color == variant.color && this.size == variant.size;
+    return this.color.equals(variant.color) && this.size.equals(variant.size);
   }
 
   /**

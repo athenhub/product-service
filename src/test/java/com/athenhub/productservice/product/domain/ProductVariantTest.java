@@ -1,12 +1,11 @@
 package com.athenhub.productservice.product.domain;
 
-import static com.athenhub.productservice.product.domain.ProductColor.BLUE;
-import static com.athenhub.productservice.product.domain.ProductColor.RED;
-import static com.athenhub.productservice.product.domain.ProductSize.L;
-import static com.athenhub.productservice.product.domain.ProductSize.M;
+import static com.athenhub.productservice.product.domain.ProductFixture.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.athenhub.productservice.product.domain.dto.ProductVariantCreateRequest;
+import com.athenhub.productservice.product.domain.vo.ProductColor;
+import com.athenhub.productservice.product.domain.vo.ProductSize;
 import org.junit.jupiter.api.Test;
 
 class ProductVariantTest {
@@ -14,7 +13,7 @@ class ProductVariantTest {
   @Test
   void create() {
     // given
-    ProductVariantCreateRequest request = new ProductVariantCreateRequest(RED, M);
+    ProductVariantCreateRequest request = productVariantCreateRequest("RED", "M");
 
     // when
     ProductVariant productVariant = ProductVariant.create(request);
@@ -22,18 +21,18 @@ class ProductVariantTest {
     // then
     assertThat(productVariant);
     assertThat(productVariant.getId()).isNotNull();
-    assertThat(productVariant.getColor()).isEqualTo(RED);
-    assertThat(productVariant.getSize()).isEqualTo(M);
+    assertThat(productVariant.getColor()).isEqualTo(ProductColor.of("RED"));
+    assertThat(productVariant.getSize()).isEqualTo(ProductColor.of("M"));
   }
 
   @Test
   void update() {
     // given
-    ProductVariant productVariant = ProductVariant.create(new ProductVariantCreateRequest(RED, M));
+    ProductVariant productVariant = ProductVariant.create(productVariantCreateRequest("RED", "M"));
 
     // when
-    ProductSize changedSize = L;
-    ProductColor changedColor = BLUE;
+    ProductSize changedSize = ProductSize.of("L");
+    ProductColor changedColor = ProductColor.of("BLUE");
     productVariant.update(changedColor, changedSize);
 
     // then
@@ -44,8 +43,8 @@ class ProductVariantTest {
   @Test
   void isSameOption() {
     // given
-    ProductVariant productVariant1 = ProductVariant.create(new ProductVariantCreateRequest(RED, M));
-    ProductVariant productVariant2 = ProductVariant.create(new ProductVariantCreateRequest(RED, M));
+    ProductVariant productVariant1 = ProductVariant.create(productVariantCreateRequest("RED", "M"));
+    ProductVariant productVariant2 = ProductVariant.create(productVariantCreateRequest("RED", "M"));
 
     // when & then
     assertThat(productVariant1.isSameOption(productVariant2)).isTrue();
@@ -54,7 +53,7 @@ class ProductVariantTest {
   @Test
   void isDeleted() {
     // given
-    ProductVariant productVariant = ProductVariant.create(new ProductVariantCreateRequest(RED, M));
+    ProductVariant productVariant = ProductVariant.create(productVariantCreateRequest("RED", "M"));
     productVariant.delete("test");
 
     // when & then

@@ -1,9 +1,7 @@
 package com.athenhub.productservice.product.domain;
 
-import static com.athenhub.productservice.product.domain.ProductColor.*;
 import static com.athenhub.productservice.product.domain.ProductFixture.productCreateRequest;
-import static com.athenhub.productservice.product.domain.ProductSize.L;
-import static com.athenhub.productservice.product.domain.ProductSize.M;
+import static com.athenhub.productservice.product.domain.ProductFixture.productVariantCreateRequest;
 import static com.athenhub.productservice.product.domain.ProductType.OPTION;
 import static com.athenhub.productservice.product.domain.ProductType.SIMPLE;
 import static org.assertj.core.api.Assertions.*;
@@ -12,9 +10,7 @@ import com.athenhub.productservice.product.domain.dto.*;
 import com.athenhub.productservice.product.domain.exception.ProductVariantNotSupportedException;
 import com.athenhub.productservice.product.domain.exception.VariantAlreadyExistsException;
 import com.athenhub.productservice.product.domain.exception.VariantNotFoundException;
-import com.athenhub.productservice.product.domain.vo.HubId;
-import com.athenhub.productservice.product.domain.vo.Price;
-import com.athenhub.productservice.product.domain.vo.VendorId;
+import com.athenhub.productservice.product.domain.vo.*;
 import java.util.List;
 import java.util.UUID;
 import org.assertj.core.groups.Tuple;
@@ -26,8 +22,8 @@ class ProductTest {
   void create() {
     // given
     ProductCreateRequest productRequest = productCreateRequest(OPTION);
-    ProductVariantCreateRequest productVariantRequest1 = new ProductVariantCreateRequest(RED, M);
-    ProductVariantCreateRequest productVariantRequest2 = new ProductVariantCreateRequest(BLUE, L);
+    ProductVariantCreateRequest productVariantRequest1 = productVariantCreateRequest("RED", "M");
+    ProductVariantCreateRequest productVariantRequest2 = productVariantCreateRequest("BLUE", "L");
     ProductVariant productVariant1 = ProductVariant.create(productVariantRequest1);
     ProductVariant productVariant2 = ProductVariant.create(productVariantRequest2);
 
@@ -46,8 +42,8 @@ class ProductTest {
     assertThat(product.getStatus()).isEqualTo(ProductStatus.DRAFT);
     assertThat(product.getVariants()).hasSize(2);
     assertThat(product.getVariants())
-        .extracting("color", "size")
-        .containsExactlyInAnyOrder(tuple(RED, M), Tuple.tuple(BLUE, L));
+        .extracting("color.value", "size.value")
+        .containsExactlyInAnyOrder(tuple("RED", "M"), Tuple.tuple("BLUE", "L"));
   }
 
   @Test
@@ -101,9 +97,9 @@ class ProductTest {
   void addVariant() {
     // given
     Product product = Product.create(productCreateRequest(OPTION));
-    ProductVariant productVariant1 = ProductVariant.create(new ProductVariantCreateRequest(RED, M));
+    ProductVariant productVariant1 = ProductVariant.create(productVariantCreateRequest("RED", "M"));
     ProductVariant productVariant2 =
-        ProductVariant.create(new ProductVariantCreateRequest(BLUE, L));
+        ProductVariant.create(productVariantCreateRequest("BLUE", "L"));
 
     // when
     product.addVariant(productVariant1);
@@ -112,15 +108,15 @@ class ProductTest {
     // then
     assertThat(product.getVariants())
         .hasSize(2)
-        .extracting("color", "size")
-        .containsExactlyInAnyOrder(tuple(RED, M), Tuple.tuple(BLUE, L));
+        .extracting("color.value", "size.value")
+        .containsExactlyInAnyOrder(tuple("RED", "M"), Tuple.tuple("BLUE", "L"));
   }
 
   @Test
   void addVariant_withSimpleType() {
     // given
     Product product = Product.create(productCreateRequest(SIMPLE));
-    ProductVariant productVariant = ProductVariant.create(new ProductVariantCreateRequest(RED, M));
+    ProductVariant productVariant = ProductVariant.create(productVariantCreateRequest("RED", "M"));
 
     // when & then
     assertThatThrownBy(() -> product.addVariant(productVariant))
@@ -132,13 +128,13 @@ class ProductTest {
     // given
     Product product =
         ProductFixture.create(
-            productCreateRequest(OPTION), new ProductVariantCreateRequest(RED, M));
+            productCreateRequest(OPTION), productVariantCreateRequest("RED", "M"));
 
     // when & then
     assertThatThrownBy(
             () -> {
               ProductVariant productVariant2 =
-                  ProductVariant.create(new ProductVariantCreateRequest(RED, M));
+                  ProductVariant.create(productVariantCreateRequest("RED", "M"));
               product.addVariant(productVariant2);
             })
         .isInstanceOf(VariantAlreadyExistsException.class);
@@ -153,7 +149,8 @@ class ProductTest {
     assertThatThrownBy(
             () -> {
               ProductVariantUpdateRequest productVariantUpdateRequest =
-                  new ProductVariantUpdateRequest(UUID.randomUUID(), RED, M);
+                  new ProductVariantUpdateRequest(
+                      UUID.randomUUID(), ProductColor.of("RED"), ProductSize.of("M"));
               product.updateVariant(productVariantUpdateRequest);
             })
         .isInstanceOf(ProductVariantNotSupportedException.class);
@@ -164,13 +161,14 @@ class ProductTest {
     // given
     Product product =
         ProductFixture.create(
-            productCreateRequest(OPTION), new ProductVariantCreateRequest(BLUE, M));
+            productCreateRequest(OPTION), productVariantCreateRequest("RED", "M"));
 
     // when & then
     assertThatThrownBy(
             () -> {
               ProductVariantUpdateRequest productVariantUpdateRequest =
-                  new ProductVariantUpdateRequest(UUID.randomUUID(), RED, M);
+                  new ProductVariantUpdateRequest(
+                      UUID.randomUUID(), ProductColor.of("RED"), ProductSize.of("M"));
               product.updateVariant(productVariantUpdateRequest);
             })
         .isInstanceOf(VariantNotFoundException.class);
@@ -192,7 +190,7 @@ class ProductTest {
     // given
     Product product =
         ProductFixture.create(
-            productCreateRequest(OPTION), new ProductVariantCreateRequest(BLUE, M));
+            productCreateRequest(OPTION), productVariantCreateRequest("RED", "M"));
 
     // when & then
     assertThatThrownBy(
@@ -204,11 +202,11 @@ class ProductTest {
   void getVariants_ByActive_activeOnlyTrue() {
     // given
     ProductCreateRequest productRequest = productCreateRequest(OPTION);
-    ProductVariant productVariant1 = ProductVariant.create(new ProductVariantCreateRequest(RED, M));
+    ProductVariant productVariant1 = ProductVariant.create(productVariantCreateRequest("RED", "M"));
     ProductVariant productVariant2 =
-        ProductVariant.create(new ProductVariantCreateRequest(BLUE, L));
+        ProductVariant.create(productVariantCreateRequest("BLUE", "L"));
     ProductVariant productVariant3 =
-        ProductVariant.create(new ProductVariantCreateRequest(GREEN, L));
+        ProductVariant.create(productVariantCreateRequest("GREEN", "L"));
     Product product = Product.create(productRequest);
     product.addVariant(productVariant1);
     product.addVariant(productVariant2);
@@ -230,11 +228,11 @@ class ProductTest {
   void getVariants_ByActive_activeOnlyFalse() {
     // given
     ProductCreateRequest productRequest = productCreateRequest(OPTION);
-    ProductVariant productVariant1 = ProductVariant.create(new ProductVariantCreateRequest(RED, M));
+    ProductVariant productVariant1 = ProductVariant.create(productVariantCreateRequest("RED", "M"));
     ProductVariant productVariant2 =
-        ProductVariant.create(new ProductVariantCreateRequest(BLUE, L));
+        ProductVariant.create(productVariantCreateRequest("BLUE", "L"));
     ProductVariant productVariant3 =
-        ProductVariant.create(new ProductVariantCreateRequest(GREEN, L));
+        ProductVariant.create(productVariantCreateRequest("GREEN", "L"));
     Product product = Product.create(productRequest);
     product.addVariant(productVariant1);
     product.addVariant(productVariant2);
