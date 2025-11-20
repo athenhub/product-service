@@ -2,6 +2,7 @@ package com.athenhub.productservice.product.domain.exception;
 
 import com.athenhub.commoncore.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 /**
  * 상품(Product) 및 옵션(ProductVariant) 도메인에서 발생하는 에러 코드 정의.
@@ -31,13 +32,13 @@ import lombok.RequiredArgsConstructor;
 public enum ProductDomainErrorCode implements ErrorCode {
 
   /** 옵션을 찾을 수 없음. */
-  PRODUCT_VARIANT_NOT_FOUND(404, "PRODUCT_NOT_FOUND"),
+  PRODUCT_VARIANT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "PRODUCT_NOT_FOUND"),
 
   /** 동일 옵션이 이미 존재함. */
-  PRODUCT_VARIANT_ALREADY_EXIST(400, "PRODUCT_VARIANT_ALREADY_EXIST"),
+  PRODUCT_VARIANT_ALREADY_EXIST(HttpStatus.BAD_REQUEST.value(), "PRODUCT_VARIANT_ALREADY_EXIST"),
 
   /** 옵션 타입이 아닌 상품에 옵션 작업을 시도함. */
-  PRODUCT_VARIANT_NOT_SUPPORTED(400, "INVALID_PRODUCT_TYPE");
+  PRODUCT_VARIANT_NOT_SUPPORTED(HttpStatus.BAD_REQUEST.value(), "INVALID_PRODUCT_TYPE");
 
   /** HTTP 상태 코드. */
   private final int status;
