@@ -1,6 +1,7 @@
 package com.athenhub.productservice.product.domain.vo;
 
 import jakarta.persistence.Embeddable;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -54,9 +55,13 @@ public class ProductVariantId {
     return id;
   }
 
-  /** 내부 생성자 — 외부 생성을 제한하고 정적 팩토리 사용을 강제한다. */
+  /**
+   * 내부 생성자 — 외부 생성을 제한하고 정적 팩토리 사용을 강제한다.
+   *
+   * @param id 값은 null 을 허용하지 않는다.
+   */
   private ProductVariantId(UUID id) {
-    this.id = id;
+    this.id = Objects.requireNonNull(id);
   }
 
   /**
