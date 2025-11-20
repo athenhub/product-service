@@ -1,6 +1,8 @@
 package com.athenhub.productservice.product.domain;
 
-import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.*;
+import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.PRODUCT_VARIANT_ALREADY_EXIST;
+import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.PRODUCT_VARIANT_NOT_FOUND;
+import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.PRODUCT_VARIANT_NOT_SUPPORTED;
 
 import com.athenhub.productservice.global.domain.AbstractAuditEntity;
 import com.athenhub.productservice.product.domain.dto.ProductBasicUpdateCommand;
@@ -10,8 +12,19 @@ import com.athenhub.productservice.product.domain.dto.ProductVariantUpdateComman
 import com.athenhub.productservice.product.domain.exception.ProductVariantNotSupportedException;
 import com.athenhub.productservice.product.domain.exception.VariantAlreadyExistsException;
 import com.athenhub.productservice.product.domain.exception.VariantNotFoundException;
-import com.athenhub.productservice.product.domain.vo.*;
-import jakarta.persistence.*;
+import com.athenhub.productservice.product.domain.vo.HubId;
+import com.athenhub.productservice.product.domain.vo.Price;
+import com.athenhub.productservice.product.domain.vo.ProductId;
+import com.athenhub.productservice.product.domain.vo.ProductVariantId;
+import com.athenhub.productservice.product.domain.vo.VendorId;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
