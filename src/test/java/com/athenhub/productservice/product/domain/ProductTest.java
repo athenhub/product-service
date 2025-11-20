@@ -207,7 +207,7 @@ class ProductTest {
   }
 
   @Test
-  void getVariants_activeOnlyTrue() {
+  void getVariants_ByActive_activeOnlyTrue() {
     // given
     ProductCreateRequest productRequest = productCreateRequest(OPTION);
     ProductVariant productVariant1 = ProductVariant.create(new ProductVariantCreateRequest(RED, M));
@@ -224,7 +224,7 @@ class ProductTest {
     product.removeVariant(new ProductVariantRemoveRequest(deletedVariantId, "tset"));
 
     // when
-    List<ProductVariant> variants = product.getVariants(true);
+    List<ProductVariant> variants = product.getVariantsByActive(true);
 
     assertThat(variants)
         .hasSize(2)
@@ -233,7 +233,7 @@ class ProductTest {
   }
 
   @Test
-  void getVariants_activeOnlyFalse() {
+  void getVariants_ByActive_activeOnlyFalse() {
     // given
     ProductCreateRequest productRequest = productCreateRequest(OPTION);
     ProductVariant productVariant1 = ProductVariant.create(new ProductVariantCreateRequest(RED, M));
@@ -250,7 +250,7 @@ class ProductTest {
     product.removeVariant(new ProductVariantRemoveRequest(deletedVariantId, "tset"));
 
     // when
-    List<ProductVariant> variants = product.getVariants(false);
+    List<ProductVariant> variants = product.getVariantsByActive(false);
 
     assertThat(variants).hasSize(3).extracting(v -> v.getId().toUuid()).contains(deletedVariantId);
   }
