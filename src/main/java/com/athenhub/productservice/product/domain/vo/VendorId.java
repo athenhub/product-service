@@ -1,9 +1,9 @@
 package com.athenhub.productservice.product.domain.vo;
 
 import jakarta.persistence.Embeddable;
-import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,6 +34,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode
 public class VendorId {
 
   /** 업체 식별자(UUID). */
@@ -62,19 +63,5 @@ public class VendorId {
   @Override
   public String toString() {
     return id.toString();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    VendorId vendorId = (VendorId) o;
-    return Objects.equals(id, vendorId.id);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(id);
   }
 }
