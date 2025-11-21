@@ -207,8 +207,8 @@ public class Product extends AbstractAuditEntity {
   @Override
   public void delete(String deleteBy) {
     super.delete(deleteBy);
-    variants.forEach(v -> v.delete(deleteBy));
     this.status = ProductStatus.REMOVED;
+    variants.forEach(v -> v.delete(deleteBy));
   }
 
   /**
