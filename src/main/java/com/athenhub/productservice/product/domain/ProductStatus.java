@@ -41,7 +41,7 @@ public enum ProductStatus {
   HIDDEN("상품 숨김 처리"),
 
   /** 상품이 삭제된 상태. */
-  REMOVED("상품 삭제 처리");
+  DELETED("상품 삭제 처리");
 
   /** 상태 설명 (관리 UI 등에서 사용). */
   private final String description;

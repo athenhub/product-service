@@ -73,7 +73,12 @@ public class ProductFixture {
    */
   public static ProductCreateCommand newProductCreateCommand(ProductType type) {
     return new ProductCreateCommand(
-        HubId.of(UUID.randomUUID()), VendorId.of(UUID.randomUUID()), Price.of(10_000L), type);
+        "test-name",
+        "test-description",
+        Price.of(10_000L),
+        HubId.of(UUID.randomUUID()),
+        VendorId.of(UUID.randomUUID()),
+        type);
   }
 
   /**
