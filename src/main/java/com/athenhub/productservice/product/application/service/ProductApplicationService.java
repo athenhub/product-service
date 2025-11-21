@@ -56,7 +56,7 @@ public class ProductApplicationService {
    * @throws ProductServiceException 권한이 없는 경우
    */
   public ProductResponse register(ProductRegisterRequest request, UUID requestId) {
-    if (!permissionPolicy.isCreateAllowed(
+    if (permissionPolicy.isCreateDenied(
         requestId, HubId.of(request.hubId()), VendorId.of(request.vendorId()))) {
 
       throw new ProductServiceException(CREATE_NOT_ALLOWED);
@@ -78,7 +78,7 @@ public class ProductApplicationService {
   public ProductResponse updateBasicInfo(ProductBasicUpdateRequest request, UUID requestId) {
     Product product = productQueryService.getProduct(request.productId());
 
-    if (!permissionPolicy.isUpdateAllowed(requestId, product.getHubId(), product.getVendorId())) {
+    if (permissionPolicy.isUpdateDenied(requestId, product.getHubId(), product.getVendorId())) {
       throw new ProductServiceException(UPDATE_NOT_ALLOWED);
     }
 
@@ -100,7 +100,7 @@ public class ProductApplicationService {
       ProductVariantUpdateRequest request, UUID requestId, String username) {
     Product product = productQueryService.getProduct(request.productId());
 
-    if (!permissionPolicy.isUpdateAllowed(requestId, product.getHubId(), product.getVendorId())) {
+    if (permissionPolicy.isUpdateDenied(requestId, product.getHubId(), product.getVendorId())) {
       throw new ProductServiceException(UPDATE_NOT_ALLOWED);
     }
 
@@ -128,7 +128,7 @@ public class ProductApplicationService {
   public void delete(UUID productId, UUID requestId, String username) {
     Product product = productQueryService.getProduct(productId);
 
-    if (!permissionPolicy.isDeleteAllowed(requestId, product.getHubId())) {
+    if (permissionPolicy.isDeleteDenied(requestId, product.getHubId())) {
       throw new ProductServiceException(DELETE_NOT_ALLOWED);
     }
 

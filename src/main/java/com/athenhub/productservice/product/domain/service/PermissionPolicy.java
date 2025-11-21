@@ -6,9 +6,9 @@ import java.util.UUID;
 
 public interface PermissionPolicy {
 
-  boolean isCreateAllowed(UUID requestId, HubId hubId, VendorId vendorId);
+  boolean isCreateDenied(UUID requestId, HubId hubId, VendorId vendorId);
 
-  boolean isUpdateAllowed(UUID requestId, HubId hubId, VendorId vendorId);
+  boolean isUpdateDenied(UUID requestId, HubId hubId, VendorId vendorId);
 
-  boolean isDeleteAllowed(UUID requestId, HubId hubId);
+  boolean isDeleteDenied(UUID requestId, HubId hubId);
 }
