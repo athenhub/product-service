@@ -1,8 +1,8 @@
 package com.athenhub.productservice.product.domain;
 
+import com.athenhub.productservice.product.application.service.policy.ProductCreatePermissionPolicy;
 import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
 import com.athenhub.productservice.product.domain.dto.ProductVariantCreateCommand;
-import com.athenhub.productservice.product.domain.service.ProductCreatePermissionPolicy;
 import com.athenhub.productservice.product.domain.vo.*;
 import java.util.UUID;
 

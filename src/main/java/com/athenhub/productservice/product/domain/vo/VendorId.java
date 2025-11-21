@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
@@ -33,7 +32,6 @@ import lombok.NoArgsConstructor;
  * @author 김지원
  * @since 1.0.0
  */
-@Getter
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
@@ -60,6 +58,10 @@ public class VendorId {
    */
   public static VendorId of(UUID uuid) {
     return new VendorId(uuid);
+  }
+
+  public UUID toUuid() {
+    return id;
   }
 
   /**
