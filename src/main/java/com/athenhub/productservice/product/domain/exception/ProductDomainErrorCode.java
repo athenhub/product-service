@@ -32,7 +32,7 @@ import org.springframework.http.HttpStatus;
 public enum ProductDomainErrorCode implements ErrorCode {
 
   /** 옵션을 찾을 수 없음. */
-  PRODUCT_VARIANT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "PRODUCT_NOT_FOUND"),
+  PRODUCT_VARIANT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "PRODUCT_VARIANT_NOT_FOUND"),
 
   /** 동일 옵션이 이미 존재함. */
   PRODUCT_VARIANT_ALREADY_EXIST(HttpStatus.BAD_REQUEST.value(), "PRODUCT_VARIANT_ALREADY_EXIST"),
