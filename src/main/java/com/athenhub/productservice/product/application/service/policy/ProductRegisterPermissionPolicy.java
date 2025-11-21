@@ -4,7 +4,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProductCreatePermissionPolicy {
+public class ProductRegisterPermissionPolicy {
   public boolean isNotAllowed(String username, UUID hubId, UUID vendorId) {
     return false;
   }
