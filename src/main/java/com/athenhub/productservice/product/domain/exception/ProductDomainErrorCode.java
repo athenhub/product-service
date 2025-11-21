@@ -38,7 +38,11 @@ public enum ProductDomainErrorCode implements ErrorCode {
   PRODUCT_VARIANT_ALREADY_EXIST(HttpStatus.BAD_REQUEST.value(), "PRODUCT_VARIANT_ALREADY_EXIST"),
 
   /** 옵션 타입이 아닌 상품에 옵션 작업을 시도함. */
-  PRODUCT_VARIANT_NOT_SUPPORTED(HttpStatus.BAD_REQUEST.value(), "INVALID_PRODUCT_TYPE");
+  PRODUCT_VARIANT_NOT_SUPPORTED(HttpStatus.BAD_REQUEST.value(), "INVALID_PRODUCT_TYPE"),
+
+  /** 상품 등록 권한이 없는 유저가 상품 등록을 시도함 */
+  PRODUCT_CREATE_PERMISSION_DENIED(
+      HttpStatus.FORBIDDEN.value(), "PRODUCT_CREATE_PERMISSION_DENIED");
 
   /** HTTP 상태 코드. */
   private final int status;
