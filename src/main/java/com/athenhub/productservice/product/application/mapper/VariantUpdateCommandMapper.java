@@ -10,9 +10,18 @@ import com.athenhub.productservice.product.domain.vo.ProductSize;
 import com.athenhub.productservice.product.domain.vo.ProductVariantId;
 import org.springframework.stereotype.Component;
 
+/**
+ * 옵션 변경 요청 DTO를 도메인 변경 명령 집합(VariantUpdateSet)으로 변환하는 매퍼.
+ *
+ * <p>추가·수정·삭제 요청을 각각 도메인 명령 객체로 매핑하여 Aggregate Root가 일괄 처리할 수 있는 형태로 변환한다.
+ *
+ * @author 김지원
+ * @since 1.0.0
+ */
 @Component
 public class VariantUpdateCommandMapper {
 
+  /** 옵션 변경 요청을 VariantUpdateSet으로 변환한다. */
   public VariantUpdateSet toChangeSet(ProductVariantUpdateRequest request, String username) {
     return new VariantUpdateSet(
         request.adds().stream()
