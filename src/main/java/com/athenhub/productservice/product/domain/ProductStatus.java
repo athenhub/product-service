@@ -38,7 +38,10 @@ public enum ProductStatus {
   DISCONTINUED("상품 단종"),
 
   /** 사용자에게 노출되지 않는 숨김 상태. */
-  HIDDEN("상품 숨김 처리");
+  HIDDEN("상품 숨김 처리"),
+
+  /** 상품이 삭제된 상태. */
+  REMOVED("상품 삭제 처리");
 
   /** 상태 설명 (관리 UI 등에서 사용). */
   private final String description;
