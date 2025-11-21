@@ -1,6 +1,5 @@
 package com.athenhub.productservice.product.domain;
 
-import com.athenhub.productservice.product.application.service.policy.ProductRegisterPermissionPolicy;
 import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
 import com.athenhub.productservice.product.domain.dto.ProductVariantCreateCommand;
 import com.athenhub.productservice.product.domain.vo.*;
@@ -27,8 +26,6 @@ public class ProductFixture {
 
   /**
    * 전달받은 권한 정책을 사용하여 OPTION 타입 상품을 생성한다.
-   *
-   * <p>외부에서 주입한 {@link ProductRegisterPermissionPolicy}를 통해 상품 생성 권한 체크 로직을 테스트 단위에서 자유롭게 제어할 수 있다.
    *
    * @return ProductType.OPTION을 가지는 Product 객체
    */
