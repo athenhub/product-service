@@ -109,16 +109,31 @@ public class ProductApplicationService {
         return productUpdateService.updateProductVariant(request, username);
     }
 
-  public ProductResponse updateVariants(ProductVariantUpdateRequest request, String username) {
-    Product product =
-        productRepository
-            .findById(ProductId.of(request.productId()))
-            .orElseThrow(() -> new ProductServiceException(PRODUCT_NOT_FOUND));
+    /**
+     * 상품 삭제 유스케이스를 실행한다.
+     *
+     * <p>상품 삭제는 다음 순서로 진행된다.
+     *
+     * <ol>
+     *   <li>상품 조회(ProductQueryService)</li>
+     *   <li>권한 체크(PermissionPolicy)</li>
+     *   <li>삭제 작업 위임(ProductDeleteService)</li>
+     * </ol>
+     *
+     * <p>ApplicationService는 삭제 비즈니스 규칙을 직접 수행하지 않으며, 단지 흐름을 조립하는 역할만 한다.
+     *
+     * @param productId 삭제할 상품 ID
+     * @param requestId 요청자 인증 정보(UUID)
+     * @param username 삭제 작업자명
+     * @throws ProductServiceException 삭제 권한이 없는 경우
+     */
+    public void delete(UUID productId, UUID requestId, String username) {
+        Product product = productQueryService.getProduct(productId);
 
-    if (productUpdatePermissionPolicy.isNotAllowed(
-        username, product.getHubId().toUuid(), product.getVendorId().toUuid())) {
-      throw new ProductServiceException(PRODUCT_UPDATE_PERMISSION_DENIED);
+        if (!permissionPolicy.isDeleteAllowed(requestId, product.getHubId())) {
+            throw new ProductServiceException(DELETE_NOT_ALLOWED);
+        }
+
+        productDeleteService.delete(productId, username);
     }
-    return updateProductService.updateProductVariant(request, username);
-  }
 }
