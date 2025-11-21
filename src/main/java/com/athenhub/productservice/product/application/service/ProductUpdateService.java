@@ -44,7 +44,7 @@ public class ProductUpdateService {
             .orElseThrow(() -> new ProductServiceException(PRODUCT_NOT_FOUND));
 
     VariantUpdateSet updateSet = variantCommandMapper.toChangeSet(request, username);
-    product.applyVariantUpdateSet(updateSet);
+    product.apply(updateSet);
 
     return new ProductResponse(request.productId());
   }

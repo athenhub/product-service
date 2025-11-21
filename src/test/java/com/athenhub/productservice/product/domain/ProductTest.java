@@ -6,10 +6,7 @@ import static com.athenhub.productservice.product.domain.ProductType.SIMPLE;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.athenhub.productservice.product.domain.dto.ProductBasicUpdateCommand;
-import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
-import com.athenhub.productservice.product.domain.dto.ProductVariantRemoveCommand;
-import com.athenhub.productservice.product.domain.dto.ProductVariantUpdateCommand;
+import com.athenhub.productservice.product.domain.dto.*;
 import com.athenhub.productservice.product.domain.exception.ProductVariantNotSupportedException;
 import com.athenhub.productservice.product.domain.exception.VariantAlreadyExistsException;
 import com.athenhub.productservice.product.domain.exception.VariantNotFoundException;
@@ -22,7 +19,7 @@ import org.junit.jupiter.api.Test;
 class ProductTest {
 
   @Test
-  void create() {
+  void create_success() {
     // given
     ProductCreateCommand productCommand = newProductCreateCommand(SIMPLE);
 
@@ -40,7 +37,7 @@ class ProductTest {
   }
 
   @Test
-  void updateBasic() {
+  void updateBasic_success() {
     // given
     Product product = createSimpleProduct();
 
@@ -58,7 +55,7 @@ class ProductTest {
   }
 
   @Test
-  void changeType() {
+  void changeType_success() {
     // given
     Product product = createSimpleProduct();
 
@@ -71,7 +68,7 @@ class ProductTest {
   }
 
   @Test
-  void changeStatus() {
+  void changeStatus_success() {
     // given
     Product product = createSimpleProduct();
 
@@ -84,15 +81,15 @@ class ProductTest {
   }
 
   @Test
-  void addVariant() {
+  void addVariant_success() {
     // given
     Product product = createOptionProduct();
-    ProductVariant productVariant1 = createProductVariant("RED", "M");
-    ProductVariant productVariant2 = createProductVariant("BLUE", "L");
+    ProductVariantCreateCommand variantCreateCommand1 = newProductVariantCreateCommand("RED", "M");
+    ProductVariantCreateCommand variantCreateCommand2 = newProductVariantCreateCommand("BLUE", "L");
 
     // when
-    product.addVariant(productVariant1);
-    product.addVariant(productVariant2);
+    product.addVariant(variantCreateCommand1);
+    product.addVariant(variantCreateCommand2);
 
     // then
     assertThat(product.getVariants())
@@ -102,40 +99,38 @@ class ProductTest {
   }
 
   @Test
-  void addVariant_withSimpleType() {
+  void addVariant_simpleProductType_fail() {
     // given
     Product product = createSimpleProduct();
-    ProductVariant productVariant = createProductVariant("RED", "M");
+    ProductVariantCreateCommand variantCreateCommand = newProductVariantCreateCommand("RED", "M");
 
     // when & then
-    assertThatThrownBy(() -> product.addVariant(productVariant))
+    assertThatThrownBy(() -> product.addVariant(variantCreateCommand))
         .isInstanceOf(ProductVariantNotSupportedException.class);
   }
 
   @Test
-  void addVariant_withDuplicatedVariant() {
+  void addVariant_duplicate_fail() {
     // given
     Product product = createOptionProduct();
-    ProductVariant productVariant1 = createProductVariant("RED", "M");
-    product.addVariant(productVariant1);
+    ProductVariantCreateCommand variantCreateCommand1 = newProductVariantCreateCommand("RED", "M");
+    product.addVariant(variantCreateCommand1);
 
     // when & then
-    ProductVariant productVariant2 = createProductVariant("RED", "M");
+    ProductVariantCreateCommand variantCreateCommand2 = newProductVariantCreateCommand("RED", "M");
 
-    assertThatThrownBy(() -> product.addVariant(productVariant2))
+    assertThatThrownBy(() -> product.addVariant(variantCreateCommand2))
         .isInstanceOf(VariantAlreadyExistsException.class);
   }
 
   @Test
-  void updateVariant() {
+  void updateVariant_success() {
     // given
     Product product = createOptionProduct();
-    ProductVariant productVariant = createProductVariant("RED", "L");
-    product.addVariant(productVariant);
+    ProductVariantCreateCommand variantCreateCommand = newProductVariantCreateCommand("RED", "M");
+    ProductVariantId targetProductVariantId = product.addVariant(variantCreateCommand);
 
     // when & then
-    ProductVariantId targetProductVariantId = productVariant.getId();
-
     ProductVariantUpdateCommand productVariantUpdateCommand =
         new ProductVariantUpdateCommand(
             targetProductVariantId, ProductColor.of("BLUE"), ProductSize.of("S"));
@@ -150,7 +145,7 @@ class ProductTest {
   }
 
   @Test
-  void updateVariant_withSimpleType() {
+  void updateVariant_withSimpleType_success() {
     // given
     Product product = createSimpleProduct();
 
@@ -166,10 +161,10 @@ class ProductTest {
   }
 
   @Test
-  void updateVariant_withNotFoundVariantId() {
+  void updateVariant_notFound_fail() {
     // given
     Product product = createOptionProduct();
-    product.addVariant(createProductVariant("RED", "L"));
+    product.addVariant(newProductVariantCreateCommand("RED", "L"));
 
     // when & then
     ProductVariantId targetProductVariantId = ProductVariantId.of(UUID.randomUUID());
@@ -183,14 +178,13 @@ class ProductTest {
   }
 
   @Test
-  void removeVariant() {
+  void removeVariant_success() {
     // given
     Product product = createOptionProduct();
-    ProductVariant productVariant = createProductVariant("RED", "M");
-    product.addVariant(productVariant);
+    ProductVariantId targetProductVariantId =
+        product.addVariant(newProductVariantCreateCommand("RED", "M"));
 
     // when
-    ProductVariantId targetProductVariantId = productVariant.getId();
     ProductVariantRemoveCommand productVariantRemoveCommand =
         new ProductVariantRemoveCommand(targetProductVariantId, "TEST_USER");
     product.removeVariant(productVariantRemoveCommand);
@@ -202,7 +196,7 @@ class ProductTest {
   }
 
   @Test
-  void removeVariant_withSimpleType() {
+  void removeVariant_simpleProductType_fail() {
     // given
     Product product = createSimpleProduct();
 
@@ -215,10 +209,10 @@ class ProductTest {
   }
 
   @Test
-  void removeVariant_withNotFoundVariantId() {
+  void removeVariant_notFound_fail() {
     // given
     Product product = createOptionProduct();
-    product.addVariant(createProductVariant("RED", "M"));
+    product.addVariant(newProductVariantCreateCommand("RED", "M"));
 
     // when & then
     ProductVariantId targetProductVariantId = ProductVariantId.of(UUID.randomUUID());

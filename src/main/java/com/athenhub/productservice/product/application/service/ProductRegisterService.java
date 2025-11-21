@@ -4,7 +4,6 @@ import com.athenhub.productservice.product.application.dto.ProductRegisterReques
 import com.athenhub.productservice.product.application.dto.ProductResponse;
 import com.athenhub.productservice.product.application.mapper.ProductCreateCommandMapper;
 import com.athenhub.productservice.product.domain.Product;
-import com.athenhub.productservice.product.domain.ProductVariant;
 import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
 import com.athenhub.productservice.product.domain.dto.ProductVariantCreateCommand;
 import com.athenhub.productservice.product.domain.repository.ProductRepository;
@@ -38,6 +37,6 @@ public class ProductRegisterService {
   private void addVariants(ProductRegisterRequest request, Product product) {
     List<ProductVariantCreateCommand> variantCommands =
         createCommandMapper.toVariantCommands(request);
-    variantCommands.forEach(cmd -> product.addVariant(ProductVariant.create(cmd)));
+    variantCommands.forEach(product::addVariant);
   }
 }
