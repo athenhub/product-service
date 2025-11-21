@@ -30,7 +30,8 @@ public class ProductFixture {
    * @return ProductType.OPTION을 가지는 Product 객체
    */
   public static Product createOptionProduct() {
-    return Product.create(newProductCreateCommand(ProductType.OPTION));
+    return Product.create(
+        newProductCreateCommand("test-name", "test-description", 1000, ProductType.OPTION));
   }
 
   /**
@@ -39,7 +40,8 @@ public class ProductFixture {
    * @return ProductType.SIMPLE을 가지는 Product 객체
    */
   public static Product createSimpleProduct() {
-    return Product.create(newProductCreateCommand(ProductType.SIMPLE));
+    return Product.create(
+        newProductCreateCommand("test-name", "test-description", 1000, ProductType.SIMPLE));
   }
 
   /**
@@ -71,11 +73,12 @@ public class ProductFixture {
    * @param type 생성할 상품 타입 (SIMPLE, OPTION 등)
    * @return 기본값이 설정된 ProductCreateCommand
    */
-  public static ProductCreateCommand newProductCreateCommand(ProductType type) {
+  public static ProductCreateCommand newProductCreateCommand(
+      String name, String description, long price, ProductType type) {
     return new ProductCreateCommand(
-        "test-name",
-        "test-description",
-        Price.of(10_000L),
+        name,
+        description,
+        Price.of(price),
         HubId.of(UUID.randomUUID()),
         VendorId.of(UUID.randomUUID()),
         type);

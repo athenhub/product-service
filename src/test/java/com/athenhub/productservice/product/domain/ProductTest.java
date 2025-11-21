@@ -21,13 +21,16 @@ class ProductTest {
   @Test
   void create_success() {
     // given
-    ProductCreateCommand productCommand = newProductCreateCommand(SIMPLE);
+    ProductCreateCommand productCommand =
+        newProductCreateCommand("test", "test-description", 1000, SIMPLE);
 
     // when
     Product product = Product.create(productCommand);
 
     // then
-    assertThat(product);
+    assertThat(product.getName()).isEqualTo("test");
+    assertThat(product.getDescription()).isEqualTo("test-description");
+    assertThat(product.getPrice()).isEqualTo(Price.of(1000));
     assertThat(product.getType()).isEqualTo(SIMPLE);
     assertThat(product.getId()).isNotNull();
     assertThat(product.getHubId()).isNotNull();
