@@ -1,4 +1,4 @@
-package com.athenhub.productservice.product.domain.exception;
+package com.athenhub.productservice.product.application.exception;
 
 import com.athenhub.commoncore.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -19,26 +19,18 @@ import org.springframework.http.HttpStatus;
  *
  * <p>■ 정의된 에러 코드
  *
- * <ul>
- *   <li>{@link #PRODUCT_VARIANT_NOT_FOUND} — 요청한 옵션이 존재하지 않을 때
- *   <li>{@link #PRODUCT_VARIANT_ALREADY_EXIST} — 동일한 옵션(Color+Size)이 이미 존재할 때
- *   <li>{@link #PRODUCT_VARIANT_NOT_SUPPORTED} — 상품 타입이 옵션을 허용하지 않을 때
- * </ul>
- *
  * @author 김지원
  * @since 1.0.0
  */
 @RequiredArgsConstructor
-public enum ProductDomainErrorCode implements ErrorCode {
+public enum ProductServiceErrorCode implements ErrorCode {
 
-  /** 옵션을 찾을 수 없음. */
-  PRODUCT_VARIANT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "PRODUCT_NOT_FOUND"),
+  /** 상품을 찾을 수 없음. */
+  PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "PRODUCT_NOT_FOUND"),
 
-  /** 동일 옵션이 이미 존재함. */
-  PRODUCT_VARIANT_ALREADY_EXIST(HttpStatus.BAD_REQUEST.value(), "PRODUCT_VARIANT_ALREADY_EXIST"),
-
-  /** 옵션 타입이 아닌 상품에 옵션 작업을 시도함. */
-  PRODUCT_VARIANT_NOT_SUPPORTED(HttpStatus.BAD_REQUEST.value(), "INVALID_PRODUCT_TYPE");
+  /** 상품 등록 권한이 없는 유저가 상품 등록을 시도함. */
+  PRODUCT_CREATE_PERMISSION_DENIED(
+      HttpStatus.FORBIDDEN.value(), "PRODUCT_CREATE_PERMISSION_DENIED");
 
   /** HTTP 상태 코드. */
   private final int status;
