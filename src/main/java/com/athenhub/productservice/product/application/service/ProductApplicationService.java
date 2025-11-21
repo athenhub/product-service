@@ -7,7 +7,7 @@ import com.athenhub.productservice.product.application.dto.ProductRegisterReques
 import com.athenhub.productservice.product.application.dto.ProductResponse;
 import com.athenhub.productservice.product.application.dto.ProductVariantUpdateRequest;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
-import com.athenhub.productservice.product.application.service.policy.ProductCreatePermissionPolicy;
+import com.athenhub.productservice.product.application.service.policy.ProductRegisterPermissionPolicy;
 import com.athenhub.productservice.product.application.service.policy.ProductUpdatePermissionPolicy;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.repository.ProductRepository;
@@ -22,7 +22,7 @@ public class ProductApplicationService {
   private final RegisterProductService registerProductService;
   private final UpdateProductService updateProductService;
 
-  private final ProductCreatePermissionPolicy productCreatePermissionPolicy;
+  private final ProductRegisterPermissionPolicy productCreatePermissionPolicy;
   private final ProductUpdatePermissionPolicy productUpdatePermissionPolicy;
   private final ProductRepository productRepository;
 

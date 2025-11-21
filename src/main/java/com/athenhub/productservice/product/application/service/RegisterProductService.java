@@ -3,7 +3,7 @@ package com.athenhub.productservice.product.application.service;
 import com.athenhub.productservice.product.application.dto.ProductRegisterRequest;
 import com.athenhub.productservice.product.application.dto.ProductResponse;
 import com.athenhub.productservice.product.application.mapper.ProductCreateCommandMapper;
-import com.athenhub.productservice.product.application.service.policy.ProductCreatePermissionPolicy;
+import com.athenhub.productservice.product.application.service.policy.ProductRegisterPermissionPolicy;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductVariant;
 import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
@@ -21,7 +21,7 @@ public class RegisterProductService {
 
   private final ProductRepository productRepository;
   private final ProductCreateCommandMapper createCommandMapper;
-  private final ProductCreatePermissionPolicy productRoleCheck;
+  private final ProductRegisterPermissionPolicy productRoleCheck;
 
   public ProductResponse register(ProductRegisterRequest request) {
     Product product = createProduct(request);
