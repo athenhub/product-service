@@ -4,8 +4,9 @@ import static com.athenhub.productservice.product.domain.exception.ProductDomain
 
 import com.athenhub.productservice.global.domain.AbstractAuditEntity;
 import com.athenhub.productservice.product.domain.dto.*;
-import com.athenhub.productservice.product.domain.exception.*;
-import com.athenhub.productservice.product.domain.service.ProductCreatePermissionPolicy;
+import com.athenhub.productservice.product.domain.exception.ProductVariantNotSupportedException;
+import com.athenhub.productservice.product.domain.exception.VariantAlreadyExistsException;
+import com.athenhub.productservice.product.domain.exception.VariantNotFoundException;
 import com.athenhub.productservice.product.domain.vo.*;
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -75,12 +76,24 @@ public class Product extends AbstractAuditEntity {
   @Enumerated(EnumType.STRING)
   private ProductType type;
 
-  public static Product create(
-      ProductCreateCommand command, ProductCreatePermissionPolicy permissionPolicy) {
-
-    if (permissionPolicy.isNotAllowed(command.hubId(), command.vendorId())) {
-      throw new PermissionDeniedException(PRODUCT_CREATE_PERMISSION_DENIED);
-    }
+  /**
+   * Product Aggregate Root의 정적 팩토리 메서드이다.
+   *
+   * <p>외부에서 전달받은 {@link ProductCreateCommand}를 기반으로 새로운 {@link Product} 엔티티를 생성한다.
+   *
+   * <p>이 메서드는 다음과 같은 특징을 가진다.
+   *
+   * <ul>
+   *   <li>도메인 외부의 DTO를 직접 받지 않고 Command 객체를 통해 생성한다.
+   *   <li>식별자({@link ProductId})는 내부에서 자동 생성된다.
+   *   <li>상태({@link ProductStatus})는 최초 생성 시 {@code DRAFT}로 지정된다.
+   *   <li>이 메서드는 영속화(save)를 수행하지 않고, 순수하게 객체 생성 책임만 가진다.
+   * </ul>
+   *
+   * @param command 상품 생성을 위한 도메인 명령 객체
+   * @return 생성된 Product 도메인 객체
+   */
+  public static Product create(ProductCreateCommand command) {
     Product product = new Product();
     product.id = ProductId.create();
     product.hubId = command.hubId();
