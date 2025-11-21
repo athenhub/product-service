@@ -1,30 +1,13 @@
 package com.athenhub.productservice.product.domain;
 
-import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.PRODUCT_VARIANT_ALREADY_EXIST;
-import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.PRODUCT_VARIANT_NOT_FOUND;
-import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.PRODUCT_VARIANT_NOT_SUPPORTED;
+import static com.athenhub.productservice.product.domain.exception.ProductDomainErrorCode.*;
 
 import com.athenhub.productservice.global.domain.AbstractAuditEntity;
-import com.athenhub.productservice.product.domain.dto.ProductBasicUpdateCommand;
-import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
-import com.athenhub.productservice.product.domain.dto.ProductVariantRemoveCommand;
-import com.athenhub.productservice.product.domain.dto.ProductVariantUpdateCommand;
-import com.athenhub.productservice.product.domain.exception.ProductVariantNotSupportedException;
-import com.athenhub.productservice.product.domain.exception.VariantAlreadyExistsException;
-import com.athenhub.productservice.product.domain.exception.VariantNotFoundException;
-import com.athenhub.productservice.product.domain.vo.HubId;
-import com.athenhub.productservice.product.domain.vo.Price;
-import com.athenhub.productservice.product.domain.vo.ProductId;
-import com.athenhub.productservice.product.domain.vo.ProductVariantId;
-import com.athenhub.productservice.product.domain.vo.VendorId;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.athenhub.productservice.product.domain.dto.*;
+import com.athenhub.productservice.product.domain.exception.*;
+import com.athenhub.productservice.product.domain.service.ProductCreatePermissionPolicy;
+import com.athenhub.productservice.product.domain.vo.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -92,15 +75,12 @@ public class Product extends AbstractAuditEntity {
   @Enumerated(EnumType.STRING)
   private ProductType type;
 
-  /**
-   * 상품 생성 정적 팩토리 메서드.
-   *
-   * <p>외부에서 생성자를 직접 호출하지 못하도록 하고, 도메인 규칙을 강제하는 유일한 생성 지점이다.
-   *
-   * @param command 상품 생성 요청 정보
-   * @return 생성된 Product
-   */
-  public static Product create(ProductCreateCommand command) {
+  public static Product create(
+      ProductCreateCommand command, ProductCreatePermissionPolicy permissionPolicy) {
+
+    if (permissionPolicy.isNotAllowed(command.hubId(), command.vendorId())) {
+      throw new PermissionDeniedException(PRODUCT_CREATE_PERMISSION_DENIED);
+    }
     Product product = new Product();
     product.id = ProductId.create();
     product.hubId = command.hubId();
@@ -154,6 +134,11 @@ public class Product extends AbstractAuditEntity {
     this.status = status;
   }
 
+  public void addVariant(ProductVariantCreateCommand command) {
+    ProductVariant productVariant = ProductVariant.create(command);
+    addVariant(productVariant);
+  }
+
   /**
    * 옵션 추가.
    *
@@ -198,6 +183,19 @@ public class Product extends AbstractAuditEntity {
   public void removeVariant(ProductVariantRemoveCommand command) {
     ensureOptionType();
     getVariant(command.productVariantId()).delete(command.username());
+  }
+
+  public void applyVariantChanges(VariantChangeSet changeSet) {
+    changeSet.createCommands().forEach(this::addVariant);
+    changeSet.updateCommands().forEach(this::updateVariant);
+    changeSet.removeCommands().forEach(this::removeVariant);
+  }
+
+  @Override
+  public void delete(String deleteBy) {
+    super.delete(deleteBy);
+    variants.forEach(v -> v.delete(deleteBy));
+    this.status = ProductStatus.REMOVED;
   }
 
   /**
