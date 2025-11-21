@@ -27,4 +27,4 @@ import com.athenhub.productservice.product.domain.vo.VendorId;
  * @author 김지원
  * @since 1.0.0
  */
-public record ProductBasicUpdateCommand(HubId hubId, VendorId vendorId, Price price) {}
+public record ProductBasicUpdateCommand(String name, String description, Price price) {}

@@ -3,11 +3,7 @@ package com.athenhub.productservice.product.application.mapper;
 import com.athenhub.productservice.product.application.dto.ProductRegisterRequest;
 import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
 import com.athenhub.productservice.product.domain.dto.ProductVariantCreateCommand;
-import com.athenhub.productservice.product.domain.vo.HubId;
-import com.athenhub.productservice.product.domain.vo.Price;
-import com.athenhub.productservice.product.domain.vo.ProductColor;
-import com.athenhub.productservice.product.domain.vo.ProductSize;
-import com.athenhub.productservice.product.domain.vo.VendorId;
+import com.athenhub.productservice.product.domain.vo.*;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +21,12 @@ public class ProductCreateCommandMapper {
   /** 상품 기본 정보 생성 명령으로 변환한다. */
   public ProductCreateCommand toCreateCommand(ProductRegisterRequest req) {
     return new ProductCreateCommand(
-        HubId.of(req.hubId()), VendorId.of(req.vendorId()), Price.of(req.price()), req.type());
+        req.name(),
+        req.description(),
+        Price.of(req.price()),
+        HubId.of(req.hubId()),
+        VendorId.of(req.vendorId()),
+        req.type());
   }
 
   /** 옵션 등록 요청을 옵션 생성 명령 리스트로 변환한다. */

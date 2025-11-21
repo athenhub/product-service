@@ -42,15 +42,16 @@ class ProductTest {
     Product product = createSimpleProduct();
 
     // when
-    HubId changedHubId = HubId.of(UUID.randomUUID());
-    VendorId changedVendorID = VendorId.of(UUID.randomUUID());
+    String changedName = "test-name";
+    String changedDescription = "test-description";
     Price changedPrice = Price.of(1000);
-    product.updateBasic(new ProductBasicUpdateCommand(changedHubId, changedVendorID, changedPrice));
+    product.updateBasic(
+        new ProductBasicUpdateCommand(changedName, changedDescription, changedPrice));
 
     // then
     assertThat(product);
-    assertThat(product.getHubId()).isEqualTo(changedHubId);
-    assertThat(product.getVendorId()).isEqualTo(changedVendorID);
+    assertThat(product.getName()).isEqualTo(changedName);
+    assertThat(product.getDescription()).isEqualTo(changedDescription);
     assertThat(product.getPrice()).isEqualTo(changedPrice);
   }
 

@@ -59,6 +59,12 @@ public class Product extends AbstractAuditEntity {
   /** 상품 식별자 (Aggregate Identifier). */
   @EmbeddedId private ProductId id;
 
+  /** 상품 이름. */
+  private String name;
+
+  /** 상품 설명. */
+  private String description;
+
   /** 상품이 속한 허브 정보. */
   @Embedded private HubId hubId;
 
@@ -101,9 +107,11 @@ public class Product extends AbstractAuditEntity {
   public static Product create(ProductCreateCommand command) {
     Product product = new Product();
     product.id = ProductId.create();
+    product.name = command.name();
+    product.description = command.description();
+    product.price = command.price();
     product.hubId = command.hubId();
     product.vendorId = command.vendorId();
-    product.price = command.price();
     product.type = command.type();
     product.status = ProductStatus.DRAFT;
     return product;
@@ -120,8 +128,8 @@ public class Product extends AbstractAuditEntity {
 
   /** 상품 기본 정보 변경. */
   public void updateBasic(ProductBasicUpdateCommand command) {
-    this.hubId = command.hubId();
-    this.vendorId = command.vendorId();
+    this.name = command.name();
+    this.description = command.description();
     this.price = command.price();
   }
 
@@ -187,7 +195,7 @@ public class Product extends AbstractAuditEntity {
   @Override
   public void delete(String deleteBy) {
     super.delete(deleteBy);
-    this.status = ProductStatus.REMOVED;
+    this.status = ProductStatus.DELETED;
     variants.removeAll(deleteBy);
   }
 
