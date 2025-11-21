@@ -30,7 +30,11 @@ public enum ProductServiceErrorCode implements ErrorCode {
 
   /** 상품 등록 권한이 없는 유저가 상품 등록을 시도함. */
   PRODUCT_CREATE_PERMISSION_DENIED(
-      HttpStatus.FORBIDDEN.value(), "PRODUCT_CREATE_PERMISSION_DENIED");
+      HttpStatus.FORBIDDEN.value(), "PRODUCT_CREATE_PERMISSION_DENIED"),
+
+  /** 상품 업데이트 권한이 없는 유저가 상품 업데이트를 시도함. */
+  PRODUCT_UPDATE_PERMISSION_DENIED(
+      HttpStatus.FORBIDDEN.value(), "PRODUCT_UPDATE_PERMISSION_DENIED");
 
   /** HTTP 상태 코드. */
   private final int status;
