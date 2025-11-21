@@ -9,17 +9,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProductPermissionPolicy implements PermissionPolicy {
   @Override
-  public boolean isCreateAllowed(UUID requestId, HubId hubId, VendorId vendorId) {
-    return true;
+  public boolean isCreateDenied(UUID requestId, HubId hubId, VendorId vendorId) {
+    return false;
   }
 
   @Override
-  public boolean isUpdateAllowed(UUID requestId, HubId hubId, VendorId vendorId) {
-    return true;
+  public boolean isUpdateDenied(UUID requestId, HubId hubId, VendorId vendorId) {
+    return false;
   }
 
   @Override
-  public boolean isDeleteAllowed(UUID requestId, HubId hubId) {
-    return true;
+  public boolean isDeleteDenied(UUID requestId, HubId hubId) {
+    return false;
   }
 }
