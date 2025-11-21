@@ -11,9 +11,11 @@ import com.athenhub.productservice.product.domain.repository.ProductRepository;
 import com.athenhub.productservice.product.domain.service.ProductCreatePermissionPolicy;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
+@Service
 @RequiredArgsConstructor
 public class RegisterProductService {
 
@@ -32,7 +34,7 @@ public class RegisterProductService {
 
   private Product createProduct(ProductRegisterRequest request) {
     ProductCreateCommand productCommand = createCommandMapper.toCreateCommand(request);
-    return Product.create(productCommand, productRoleCheck);
+    return Product.create(productCommand);
   }
 
   private void addVariants(ProductRegisterRequest request, Product product) {
