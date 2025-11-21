@@ -9,7 +9,7 @@ import com.athenhub.productservice.product.application.exception.ProductServiceE
 import com.athenhub.productservice.product.application.mapper.VariantUpdateCommandMapper;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.dto.ProductBasicUpdateCommand;
-import com.athenhub.productservice.product.domain.dto.VariantChangeSet;
+import com.athenhub.productservice.product.domain.dto.VariantUpdateSet;
 import com.athenhub.productservice.product.domain.repository.ProductRepository;
 import com.athenhub.productservice.product.domain.vo.ProductId;
 import lombok.RequiredArgsConstructor;
@@ -43,8 +43,8 @@ public class ProductUpdateService {
             .findById(ProductId.of(request.productId()))
             .orElseThrow(() -> new ProductServiceException(PRODUCT_NOT_FOUND));
 
-    VariantChangeSet changeSet = variantCommandMapper.toChangeSet(request, username);
-    product.applyVariantChanges(changeSet);
+    VariantUpdateSet updateSet = variantCommandMapper.toChangeSet(request, username);
+    product.applyVariantUpdateSet(updateSet);
 
     return new ProductResponse(request.productId());
   }

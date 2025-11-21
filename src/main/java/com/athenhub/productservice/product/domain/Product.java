@@ -198,10 +198,10 @@ public class Product extends AbstractAuditEntity {
     getVariant(command.productVariantId()).delete(command.username());
   }
 
-  public void applyVariantChanges(VariantChangeSet changeSet) {
-    changeSet.createCommands().forEach(this::addVariant);
-    changeSet.updateCommands().forEach(this::updateVariant);
-    changeSet.removeCommands().forEach(this::removeVariant);
+  public void applyVariantUpdateSet(VariantUpdateSet updateSet) {
+    updateSet.createCommands().forEach(this::addVariant);
+    updateSet.updateCommands().forEach(this::updateVariant);
+    updateSet.removeCommands().forEach(this::removeVariant);
   }
 
   @Override
