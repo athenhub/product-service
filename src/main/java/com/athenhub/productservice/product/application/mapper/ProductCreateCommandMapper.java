@@ -3,7 +3,11 @@ package com.athenhub.productservice.product.application.mapper;
 import com.athenhub.productservice.product.application.dto.ProductRegisterRequest;
 import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
 import com.athenhub.productservice.product.domain.dto.ProductVariantCreateCommand;
-import com.athenhub.productservice.product.domain.vo.*;
+import com.athenhub.productservice.product.domain.vo.HubId;
+import com.athenhub.productservice.product.domain.vo.Price;
+import com.athenhub.productservice.product.domain.vo.ProductColor;
+import com.athenhub.productservice.product.domain.vo.ProductSize;
+import com.athenhub.productservice.product.domain.vo.VendorId;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
