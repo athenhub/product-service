@@ -13,6 +13,8 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * ProductVariants는 상품 옵션(ProductVariant)의 컬렉션을 표현하는 1급 컬렉션(First-Class Collection)이다.
@@ -48,6 +50,7 @@ import java.util.List;
  * </ul>
  */
 @Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductVariants {
 
   /**
@@ -62,8 +65,6 @@ public class ProductVariants {
    */
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ProductVariant> values = new ArrayList<>();
-
-  protected ProductVariants() {}
 
   /** 옵션 목록을 불변 리스트로 반환한다. */
   public List<ProductVariant> getValues() {

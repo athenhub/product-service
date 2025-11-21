@@ -60,6 +60,11 @@ public class VendorId {
     return new VendorId(uuid);
   }
 
+  /**
+   * UUID 값을 그대로 반환한다.
+   *
+   * @return UUID 값
+   */
   public UUID toUuid() {
     return id;
   }
