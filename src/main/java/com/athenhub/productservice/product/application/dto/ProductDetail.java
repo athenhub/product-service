@@ -1,4 +1,4 @@
-package com.athenhub.productservice.product.domain.dto;
+package com.athenhub.productservice.product.application.dto;
 
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductStatus;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @author 김지원
  * @since 1.0.0
  */
-public record ProductDetails(
+public record ProductDetail(
     UUID productId,
     String name,
     String description,
@@ -71,7 +71,7 @@ public record ProductDetails(
   }
 
   /**
-   * 도메인 엔티티 {@link Product}를 {@link ProductDetails}로 변환한다.
+   * 도메인 엔티티 {@link Product}를 {@link ProductDetail}로 변환한다.
    *
    * <p>Aggregate Root인 Product로부터 필요한 값만 추출하여 응답용 DTO로 매핑한다.
    *
@@ -81,8 +81,8 @@ public record ProductDetails(
    * @param product 변환할 Product 엔티티
    * @return 상품 상세 DTO
    */
-  public static ProductDetails from(Product product) {
-    return new ProductDetails(
+  public static ProductDetail from(Product product) {
+    return new ProductDetail(
         product.getId().toUuid(),
         product.getName(),
         product.getDescription(),

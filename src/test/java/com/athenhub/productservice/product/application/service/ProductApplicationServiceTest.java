@@ -8,16 +8,12 @@ import static org.mockito.Mockito.*;
 import com.athenhub.commoncore.error.GlobalErrorCode;
 import com.athenhub.productservice.membership.domain.MemberRole;
 import com.athenhub.productservice.membership.domain.MemberRoles;
-import com.athenhub.productservice.product.application.dto.ProductBasicUpdateRequest;
-import com.athenhub.productservice.product.application.dto.ProductRegisterRequest;
-import com.athenhub.productservice.product.application.dto.ProductResponse;
-import com.athenhub.productservice.product.application.dto.ProductVariantUpdateRequest;
+import com.athenhub.productservice.product.application.dto.*;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductType;
 import com.athenhub.productservice.product.domain.dto.MemberInfo;
 import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
-import com.athenhub.productservice.product.domain.dto.ProductDetails;
 import com.athenhub.productservice.product.domain.service.MembershipProvider;
 import com.athenhub.productservice.product.domain.service.PermissionPolicy;
 import com.athenhub.productservice.product.domain.vo.HubId;
@@ -254,7 +250,7 @@ class ProductApplicationServiceTest {
       when(productQueryService.getAll(pageable)).thenReturn(productPage);
 
       // when
-      Page<ProductDetails> result =
+      Page<ProductSummary> result =
           productApplicationService.getProductsManagedBy(userId, roles, pageable);
 
       // then
@@ -272,7 +268,7 @@ class ProductApplicationServiceTest {
       when(productQueryService.getByHubId(hubId, pageable)).thenReturn(productPage);
 
       // when
-      Page<ProductDetails> result =
+      Page<ProductSummary> result =
           productApplicationService.getProductsManagedBy(userId, roles, pageable);
 
       // then
@@ -290,7 +286,7 @@ class ProductApplicationServiceTest {
       when(productQueryService.getByVendorId(vendorId, pageable)).thenReturn(productPage);
 
       // when
-      Page<ProductDetails> result =
+      Page<ProductSummary> result =
           productApplicationService.getProductsManagedBy(userId, roles, pageable);
 
       // then

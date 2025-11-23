@@ -2,6 +2,7 @@ package com.athenhub.productservice.product.domain.dto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.athenhub.productservice.product.application.dto.ProductDetail;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductFixture;
 import com.athenhub.productservice.product.domain.ProductType;
@@ -12,7 +13,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class ProductDetailsTest {
+class ProductDetailTest {
   @DisplayName("ProductDetails.from - 도메인 객체를 상세 DTO로 변환한다")
   @Test
   void from() {
@@ -28,7 +29,7 @@ class ProductDetailsTest {
     product.addVariant(ProductFixture.newProductVariantCreateCommand("RED", "M"));
 
     // when
-    ProductDetails details = ProductDetails.from(product);
+    ProductDetail details = ProductDetail.from(product);
 
     // then
     assertThat(details.productId()).isEqualTo(product.getId().toUuid());
