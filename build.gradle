@@ -119,6 +119,18 @@ tasks.withType(Checkstyle) {
     }
 }
 
+/** main 코드만 검사 */
+tasks.named("checkstyleMain", Checkstyle) {
+    source = fileTree("src/main/java")
+    include("**/*.java")
+}
+
+/** test 코드만 검사 */
+tasks.named("checkstyleTest", Checkstyle) {
+    source = fileTree("src/test/java")
+    include("**/*.java")
+}
+
 tasks.named('check') {
     dependsOn 'checkstyleMain', 'checkstyleTest'
 }
