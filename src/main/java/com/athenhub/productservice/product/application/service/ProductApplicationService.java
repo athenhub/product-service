@@ -55,6 +55,8 @@ public class ProductApplicationService {
   private final PermissionPolicy permissionPolicy;
   private final MembershipProvider membershipProvider;
 
+  private final List<ProductQueryStrategy> productQueryStrategies;
+
   /**
    * 상품 등록 유스케이스를 실행한다.
    *
@@ -169,7 +171,9 @@ public class ProductApplicationService {
       UUID userId, MemberRoles memberRoles, Pageable pageable) {
     MemberInfo member = membershipProvider.getMember(userId);
 
-    Page<Product> result;
+    Page<Product> products = getProductsByRole(memberRoles, pageable, member);
+    return products.map(ProductDetails::from);
+  }
 
     if (memberRoles.containsMasterManager()) {
       result = productQueryService.getAll(pageable);
@@ -184,6 +188,12 @@ public class ProductApplicationService {
       throw new ProductServiceException(GlobalErrorCode.FORBIDDEN);
     }
 
-    return result.map(ProductDetails::from);
+  private Page<Product> getProductsByRole(
+      MemberRoles memberRoles, Pageable pageable, MemberInfo member) {
+    return productQueryStrategies.stream()
+        .filter(strategy -> strategy.supports(memberRoles))
+        .findFirst()
+        .map(strategy -> strategy.query(member, pageable))
+        .orElseThrow(() -> new ProductServiceException(GlobalErrorCode.FORBIDDEN));
   }
 }

@@ -13,6 +13,7 @@ import com.athenhub.productservice.product.application.dto.ProductRegisterReques
 import com.athenhub.productservice.product.application.dto.ProductResponse;
 import com.athenhub.productservice.product.application.dto.ProductVariantUpdateRequest;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
+import com.athenhub.productservice.product.application.service.statagy.ProductQueryStrategy;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductType;
 import com.athenhub.productservice.product.domain.dto.MemberInfo;
@@ -30,7 +31,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -48,7 +48,11 @@ class ProductApplicationServiceTest {
   @Mock private PermissionPolicy permissionPolicy;
   @Mock private MembershipProvider membershipProvider;
 
-  @InjectMocks private ProductApplicationService productApplicationService;
+  @Mock private ProductQueryStrategy masterManagerProductQueryStrategy;
+  @Mock private ProductQueryStrategy hubManagerProductQueryStrategy;
+  @Mock private ProductQueryStrategy vendorAgentProductQueryStrategy;
+
+  private ProductApplicationService productApplicationService;
 
   private UUID userId;
   private HubId hubId;
@@ -76,6 +80,19 @@ class ProductApplicationServiceTest {
     product = Product.create(command);
 
     productPage = new PageImpl<>(List.of(product));
+
+    productApplicationService =
+        new ProductApplicationService(
+            productRegisterService,
+            productUpdateService,
+            productDeleteService,
+            productQueryService,
+            permissionPolicy,
+            membershipProvider,
+            List.of(
+                masterManagerProductQueryStrategy,
+                hubManagerProductQueryStrategy,
+                vendorAgentProductQueryStrategy));
   }
 
   @Nested
@@ -251,7 +268,8 @@ class ProductApplicationServiceTest {
       MemberRoles roles = MemberRoles.of(List.of(MemberRole.MASTER_MANAGER));
 
       when(membershipProvider.getMember(userId)).thenReturn(memberInfo);
-      when(productQueryService.getAll(pageable)).thenReturn(productPage);
+      when(masterManagerProductQueryStrategy.supports(roles)).thenReturn(true);
+      when(masterManagerProductQueryStrategy.query(memberInfo, pageable)).thenReturn(productPage);
 
       // when
       Page<ProductDetails> result =
@@ -259,7 +277,6 @@ class ProductApplicationServiceTest {
 
       // then
       assertThat(result.getContent()).hasSize(1);
-      verify(productQueryService).getAll(pageable);
     }
 
     @Test
@@ -269,7 +286,9 @@ class ProductApplicationServiceTest {
       MemberRoles roles = MemberRoles.of(List.of(MemberRole.HUB_MANAGER));
 
       when(membershipProvider.getMember(userId)).thenReturn(memberInfo);
-      when(productQueryService.getByHubId(hubId, pageable)).thenReturn(productPage);
+      when(masterManagerProductQueryStrategy.supports(roles)).thenReturn(false);
+      when(hubManagerProductQueryStrategy.supports(roles)).thenReturn(true);
+      when(hubManagerProductQueryStrategy.query(memberInfo, pageable)).thenReturn(productPage);
 
       // when
       Page<ProductDetails> result =
@@ -277,7 +296,6 @@ class ProductApplicationServiceTest {
 
       // then
       assertThat(result.getContent()).hasSize(1);
-      verify(productQueryService).getByHubId(hubId, pageable);
     }
 
     @Test
@@ -287,7 +305,10 @@ class ProductApplicationServiceTest {
       MemberRoles roles = MemberRoles.of(List.of(MemberRole.VENDOR_AGENT));
 
       when(membershipProvider.getMember(userId)).thenReturn(memberInfo);
-      when(productQueryService.getByVendorId(vendorId, pageable)).thenReturn(productPage);
+      when(masterManagerProductQueryStrategy.supports(roles)).thenReturn(false);
+      when(hubManagerProductQueryStrategy.supports(roles)).thenReturn(false);
+      when(vendorAgentProductQueryStrategy.supports(roles)).thenReturn(true);
+      when(vendorAgentProductQueryStrategy.query(memberInfo, pageable)).thenReturn(productPage);
 
       // when
       Page<ProductDetails> result =
@@ -295,7 +316,6 @@ class ProductApplicationServiceTest {
 
       // then
       assertThat(result.getContent()).hasSize(1);
-      verify(productQueryService).getByVendorId(vendorId, pageable);
     }
 
     @Test
