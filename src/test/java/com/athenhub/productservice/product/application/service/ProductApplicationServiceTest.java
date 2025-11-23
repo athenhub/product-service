@@ -14,11 +14,14 @@ import com.athenhub.productservice.product.application.dto.ProductResponse;
 import com.athenhub.productservice.product.application.dto.ProductVariantUpdateRequest;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
 import com.athenhub.productservice.product.domain.Product;
+import com.athenhub.productservice.product.domain.ProductType;
 import com.athenhub.productservice.product.domain.dto.MemberInfo;
+import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
 import com.athenhub.productservice.product.domain.dto.ProductDetails;
 import com.athenhub.productservice.product.domain.service.MembershipProvider;
 import com.athenhub.productservice.product.domain.service.PermissionPolicy;
 import com.athenhub.productservice.product.domain.vo.HubId;
+import com.athenhub.productservice.product.domain.vo.Price;
 import com.athenhub.productservice.product.domain.vo.VendorId;
 import java.util.List;
 import java.util.UUID;
@@ -66,7 +69,11 @@ class ProductApplicationServiceTest {
 
     memberInfo = new MemberInfo(hubId, vendorId);
 
-    product = mock(Product.class);
+    ProductCreateCommand command =
+        new ProductCreateCommand(
+            "테스트 상품", "설명", Price.of(1000L), hubId, vendorId, ProductType.SIMPLE);
+
+    product = Product.create(command);
 
     productPage = new PageImpl<>(List.of(product));
   }
