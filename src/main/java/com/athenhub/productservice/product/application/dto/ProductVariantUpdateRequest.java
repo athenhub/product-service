@@ -9,7 +9,7 @@ import java.util.UUID;
  * <p>옵션 추가·수정·삭제 명령을 한 번에 전달한다.
  */
 public record ProductVariantUpdateRequest(
-    UUID productId, List<Add> adds, List<Update> updates, List<Remove> removes) {
+    List<Add> adds, List<Update> updates, List<Remove> removes) {
 
   /** 옵션 추가 요청. */
   public record Add(String color, String size) {}

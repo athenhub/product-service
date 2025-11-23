@@ -22,7 +22,6 @@ class VariantUpdateCommandMapperTest {
 
     ProductVariantUpdateRequest request =
         new ProductVariantUpdateRequest(
-            UUID.randomUUID(),
             List.of(new ProductVariantUpdateRequest.Add("RED", "M")),
             List.of(new ProductVariantUpdateRequest.Update(variantId, "BLACK", "L")),
             List.of(new ProductVariantUpdateRequest.Remove(variantId)));
@@ -57,7 +56,7 @@ class VariantUpdateCommandMapperTest {
   @DisplayName("추가/수정/삭제 요청이 없어도 비어있는 ChangeSet을 반환한다")
   void toChangeSet_empty() {
     ProductVariantUpdateRequest request =
-        new ProductVariantUpdateRequest(UUID.randomUUID(), List.of(), List.of(), List.of());
+        new ProductVariantUpdateRequest(List.of(), List.of(), List.of());
 
     VariantUpdateSet result = mapper.toChangeSet(request, "test_user");
 

@@ -5,7 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-import com.athenhub.productservice.product.application.dto.*;
+import com.athenhub.productservice.product.application.dto.ProductBasicUpdateRequest;
+import com.athenhub.productservice.product.application.dto.ProductRegisterRequest;
+import com.athenhub.productservice.product.application.dto.ProductResponse;
+import com.athenhub.productservice.product.application.dto.ProductVariantUpdateRequest;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductType;
@@ -36,6 +39,7 @@ class ProductCommandApplicationServiceTest {
 
   private UUID userId;
   private HubId hubId;
+  private UUID productId;
   private VendorId vendorId;
   private String username;
   private Product product;
@@ -43,6 +47,7 @@ class ProductCommandApplicationServiceTest {
   @BeforeEach
   void setUp() {
     userId = UUID.randomUUID();
+    productId = UUID.randomUUID();
     hubId = HubId.of(UUID.randomUUID());
     vendorId = VendorId.of(UUID.randomUUID());
     username = "tester";
@@ -104,32 +109,30 @@ class ProductCommandApplicationServiceTest {
     void success() {
       // given
       ProductBasicUpdateRequest request = mock(ProductBasicUpdateRequest.class);
-      UUID productId = UUID.randomUUID();
-
-      when(request.productId()).thenReturn(productId);
       when(productQueryService.get(productId)).thenReturn(product);
       when(permissionPolicy.isUpdateDenied(any(), any(), any())).thenReturn(false);
-      when(productUpdateService.updateBasicInfo(request)).thenReturn(mock(ProductResponse.class));
+      when(productUpdateService.updateBasicInfo(productId, request))
+          .thenReturn(mock(ProductResponse.class));
 
       // when
-      ProductResponse result = productApplicationService.updateBasicInfo(request, userId);
+      ProductResponse result =
+          productApplicationService.updateBasicInfo(productId, request, userId);
 
       // then
       assertThat(result).isNotNull();
-      verify(productUpdateService).updateBasicInfo(request);
+      verify(productUpdateService).updateBasicInfo(productId, request);
     }
 
     @Test
     void no_permission_fail() {
       // given
       ProductBasicUpdateRequest request = mock(ProductBasicUpdateRequest.class);
-
-      when(request.productId()).thenReturn(UUID.randomUUID());
       when(productQueryService.get(any())).thenReturn(product);
       when(permissionPolicy.isUpdateDenied(any(), any(), any())).thenReturn(true);
 
       // when & then
-      assertThatThrownBy(() -> productApplicationService.updateBasicInfo(request, userId))
+      assertThatThrownBy(
+              () -> productApplicationService.updateBasicInfo(productId, request, userId))
           .satisfies(
               e -> {
                 ProductServiceException ex = (ProductServiceException) e;
@@ -146,18 +149,18 @@ class ProductCommandApplicationServiceTest {
       // given
       ProductVariantUpdateRequest request = mock(ProductVariantUpdateRequest.class);
 
-      when(request.productId()).thenReturn(UUID.randomUUID());
-      when(productQueryService.get(any())).thenReturn(product);
+      when(productQueryService.get(productId)).thenReturn(product);
       when(permissionPolicy.isUpdateDenied(any(), any(), any())).thenReturn(false);
-      when(productUpdateService.updateProductVariant(any(), any()))
+      when(productUpdateService.updateProductVariant(any(), any(), any()))
           .thenReturn(mock(ProductResponse.class));
 
       // when
-      ProductResponse result = productApplicationService.updateVariants(request, userId, username);
+      ProductResponse result =
+          productApplicationService.updateVariants(productId, request, userId, username);
 
       // then
       assertThat(result).isNotNull();
-      verify(productUpdateService).updateProductVariant(request, username);
+      verify(productUpdateService).updateProductVariant(productId, request, username);
     }
 
     @Test
@@ -165,12 +168,12 @@ class ProductCommandApplicationServiceTest {
       // given
       ProductVariantUpdateRequest request = mock(ProductVariantUpdateRequest.class);
 
-      when(request.productId()).thenReturn(UUID.randomUUID());
-      when(productQueryService.get(any())).thenReturn(product);
+      when(productQueryService.get(productId)).thenReturn(product);
       when(permissionPolicy.isUpdateDenied(any(), any(), any())).thenReturn(true);
 
       // when & then
-      assertThatThrownBy(() -> productApplicationService.updateVariants(request, userId, username))
+      assertThatThrownBy(
+              () -> productApplicationService.updateVariants(productId, request, userId, username))
           .isInstanceOf(ProductServiceException.class)
           .satisfies(
               e -> {
