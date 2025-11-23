@@ -5,55 +5,40 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-import com.athenhub.commoncore.error.GlobalErrorCode;
-import com.athenhub.productservice.membership.domain.MemberRole;
-import com.athenhub.productservice.membership.domain.MemberRoles;
 import com.athenhub.productservice.product.application.dto.*;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductType;
-import com.athenhub.productservice.product.domain.dto.MemberInfo;
 import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
-import com.athenhub.productservice.product.domain.service.MembershipProvider;
 import com.athenhub.productservice.product.domain.service.PermissionPolicy;
 import com.athenhub.productservice.product.domain.vo.HubId;
 import com.athenhub.productservice.product.domain.vo.Price;
 import com.athenhub.productservice.product.domain.vo.VendorId;
-import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-class ProductApplicationServiceTest {
+class ProductCommandApplicationServiceTest {
 
   @Mock private ProductRegisterService productRegisterService;
   @Mock private ProductUpdateService productUpdateService;
   @Mock private ProductDeleteService productDeleteService;
   @Mock private ProductQueryService productQueryService;
   @Mock private PermissionPolicy permissionPolicy;
-  @Mock private MembershipProvider membershipProvider;
 
-  @InjectMocks private ProductApplicationService productApplicationService;
+  @InjectMocks private ProductCommandApplicationService productApplicationService;
 
   private UUID userId;
   private HubId hubId;
   private VendorId vendorId;
   private String username;
-  private Pageable pageable;
-  private MemberInfo memberInfo;
   private Product product;
-  private Page<Product> productPage;
 
   @BeforeEach
   void setUp() {
@@ -61,17 +46,12 @@ class ProductApplicationServiceTest {
     hubId = HubId.of(UUID.randomUUID());
     vendorId = VendorId.of(UUID.randomUUID());
     username = "tester";
-    pageable = PageRequest.of(0, 10);
-
-    memberInfo = new MemberInfo(hubId, vendorId);
 
     ProductCreateCommand command =
         new ProductCreateCommand(
             "테스트 상품", "설명", Price.of(1000L), hubId, vendorId, ProductType.SIMPLE);
 
     product = Product.create(command);
-
-    productPage = new PageImpl<>(List.of(product));
   }
 
   @Nested
@@ -233,83 +213,6 @@ class ProductApplicationServiceTest {
               e -> {
                 ProductServiceException ex = (ProductServiceException) e;
                 assertThat(ex.getCode()).isEqualTo(DELETE_NOT_ALLOWED.name());
-              });
-    }
-  }
-
-  @Nested
-  class GetProductsManagedByTest {
-
-    @Test
-    @DisplayName("MASTER_MANAGER는 전체 상품을 가져온다.")
-    void MASTER_MANAGER() {
-      // given
-      MemberRoles roles = MemberRoles.of(List.of(MemberRole.MASTER_MANAGER));
-
-      when(membershipProvider.getMember(userId)).thenReturn(memberInfo);
-      when(productQueryService.getAll(pageable)).thenReturn(productPage);
-
-      // when
-      Page<ProductSummary> result =
-          productApplicationService.getProductsManagedBy(userId, roles, pageable);
-
-      // then
-      assertThat(result.getContent()).hasSize(1);
-      verify(productQueryService).getAll(pageable);
-    }
-
-    @Test
-    @DisplayName("HUB_MANAGER는 자신의 허브에 속한 상품을 가져온다.")
-    void HUB_MANAGER() {
-      // given
-      MemberRoles roles = MemberRoles.of(List.of(MemberRole.HUB_MANAGER));
-
-      when(membershipProvider.getMember(userId)).thenReturn(memberInfo);
-      when(productQueryService.getByHubId(hubId, pageable)).thenReturn(productPage);
-
-      // when
-      Page<ProductSummary> result =
-          productApplicationService.getProductsManagedBy(userId, roles, pageable);
-
-      // then
-      assertThat(result.getContent()).hasSize(1);
-      verify(productQueryService).getByHubId(hubId, pageable);
-    }
-
-    @Test
-    @DisplayName("VENDOR_AGENT는 자신의 업체에 속한 상품을 가져온다.")
-    void VENDOR_AGENT() {
-      // given
-      MemberRoles roles = MemberRoles.of(List.of(MemberRole.VENDOR_AGENT));
-
-      when(membershipProvider.getMember(userId)).thenReturn(memberInfo);
-      when(productQueryService.getByVendorId(vendorId, pageable)).thenReturn(productPage);
-
-      // when
-      Page<ProductSummary> result =
-          productApplicationService.getProductsManagedBy(userId, roles, pageable);
-
-      // then
-      assertThat(result.getContent()).hasSize(1);
-      verify(productQueryService).getByVendorId(vendorId, pageable);
-    }
-
-    @Test
-    @DisplayName("권한이 없으면 실패한다.")
-    void no_permission_fail() {
-      // given
-      MemberRoles roles = MemberRoles.of(List.of(MemberRole.USER));
-
-      when(membershipProvider.getMember(userId)).thenReturn(memberInfo);
-
-      // when & then
-      assertThatThrownBy(
-              () -> productApplicationService.getProductsManagedBy(userId, roles, pageable))
-          .isInstanceOf(ProductServiceException.class)
-          .satisfies(
-              e -> {
-                ProductServiceException ex = (ProductServiceException) e;
-                assertThat(ex.getCode()).isEqualTo(GlobalErrorCode.FORBIDDEN.name());
               });
     }
   }
