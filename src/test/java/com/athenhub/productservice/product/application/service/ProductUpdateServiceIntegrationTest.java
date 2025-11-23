@@ -40,10 +40,10 @@ class ProductUpdateServiceIntegrationTest {
     UUID productId = product.getId().toUuid();
 
     ProductBasicUpdateRequest request =
-        new ProductBasicUpdateRequest(productId, "changedName", "changedDescription", 20000);
+        new ProductBasicUpdateRequest("changedName", "changedDescription", 20000);
 
     // when
-    productUpdateService.updateBasicInfo(request);
+    productUpdateService.updateBasicInfo(productId, request);
 
     // then
     Product updated = productRepository.findById(ProductId.of(productId)).orElseThrow();
@@ -58,11 +58,10 @@ class ProductUpdateServiceIntegrationTest {
   void update_basic_fail_not_found() {
     // given
     ProductBasicUpdateRequest request =
-        new ProductBasicUpdateRequest(
-            UUID.randomUUID(), "changedName", "changedDescription", 20000);
+        new ProductBasicUpdateRequest("changedName", "changedDescription", 20000);
 
     // when & then
-    assertThatThrownBy(() -> productUpdateService.updateBasicInfo(request))
+    assertThatThrownBy(() -> productUpdateService.updateBasicInfo(UUID.randomUUID(), request))
         .isInstanceOf(ProductServiceException.class)
         .satisfies(
             e -> {
@@ -86,13 +85,12 @@ class ProductUpdateServiceIntegrationTest {
 
     ProductVariantUpdateRequest request =
         new ProductVariantUpdateRequest(
-            productId,
             List.of(new ProductVariantUpdateRequest.Add("BLUE", "L")),
             List.of(new ProductVariantUpdateRequest.Update(variantId1, "RED", "S")),
             List.of(new ProductVariantUpdateRequest.Remove(variantId2)));
 
     // when
-    productUpdateService.updateProductVariant(request, "test-user");
+    productUpdateService.updateProductVariant(productId, request, "test-user");
 
     // then
     Product updated = productRepository.findById(ProductId.of(productId)).orElseThrow();
@@ -108,10 +106,11 @@ class ProductUpdateServiceIntegrationTest {
   void update_variant_fail_not_found() {
     // given
     ProductVariantUpdateRequest request =
-        new ProductVariantUpdateRequest(UUID.randomUUID(), List.of(), List.of(), List.of());
+        new ProductVariantUpdateRequest(List.of(), List.of(), List.of());
 
     // when & then
-    assertThatThrownBy(() -> productUpdateService.updateProductVariant(request, "kim"))
+    assertThatThrownBy(
+            () -> productUpdateService.updateProductVariant(UUID.randomUUID(), request, "kim"))
         .isInstanceOf(ProductServiceException.class)
         .satisfies(
             e -> {

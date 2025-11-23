@@ -42,14 +42,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/products")
 public class ProductQueryController {
 
-  /** 권한 기반 조회를 담당하는 Application Service */
+  /** 권한 기반 조회를 담당하는 Application Service. */
   private final ProductQueryApplicationService queryApplicationService;
 
-  /** 단순 조회 / 검색을 담당하는 Query Service */
+  /** 단순 조회 / 검색을 담당하는 Query Service. */
   private final ProductQueryService productService;
 
   /**
-   * 상품 단건 조회
+   * 상품 단건 조회.
    *
    * <p>상품 ID를 기반으로 상품 상세 정보를 조회한다.
    *
@@ -63,7 +63,7 @@ public class ProductQueryController {
   }
 
   /**
-   * 상품 검색 조회
+   * 상품 검색 조회.
    *
    * <p>검색 조건(SearchDaoRequest)과 페이지 정보(Pageable)를 기반으로 상품 목록을 조회한다.
    *
@@ -80,7 +80,7 @@ public class ProductQueryController {
   }
 
   /**
-   * 현재 로그인 사용자가 관리 가능한 상품 조회
+   * 현재 로그인 사용자가 관리 가능한 상품 조회.
    *
    * <p>인증 객체({@link AuthenticatedUser})의 권한을 분석하여 다음 기준으로 상품을 조회한다.
    *

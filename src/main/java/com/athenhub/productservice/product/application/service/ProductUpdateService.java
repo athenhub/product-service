@@ -12,6 +12,7 @@ import com.athenhub.productservice.product.domain.dto.ProductBasicUpdateCommand;
 import com.athenhub.productservice.product.domain.dto.VariantUpdateSet;
 import com.athenhub.productservice.product.domain.repository.ProductRepository;
 import com.athenhub.productservice.product.domain.vo.ProductId;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,15 +41,15 @@ public class ProductUpdateService {
    * @return 수정된 상품의 식별자 응답
    * @throws ProductServiceException 상품이 존재하지 않을 경우
    */
-  public ProductResponse updateBasicInfo(ProductBasicUpdateRequest request) {
+  public ProductResponse updateBasicInfo(UUID productId, ProductBasicUpdateRequest request) {
     Product product =
         productRepository
-            .findById(ProductId.of(request.productId()))
+            .findById(ProductId.of(productId))
             .orElseThrow(() -> new ProductServiceException(PRODUCT_NOT_FOUND));
 
     ProductBasicUpdateCommand basicUpdateCommand = request.toBasicUpdateCommand();
     product.updateBasic(basicUpdateCommand);
-    return new ProductResponse(request.productId());
+    return new ProductResponse(product.getId().toUuid());
   }
 
   /**
@@ -60,15 +61,15 @@ public class ProductUpdateService {
    * @throws ProductServiceException 상품이 존재하지 않을 경우
    */
   public ProductResponse updateProductVariant(
-      ProductVariantUpdateRequest request, String username) {
+      UUID productId, ProductVariantUpdateRequest request, String username) {
     Product product =
         productRepository
-            .findById(ProductId.of(request.productId()))
+            .findById(ProductId.of(productId))
             .orElseThrow(() -> new ProductServiceException(PRODUCT_NOT_FOUND));
 
     VariantUpdateSet updateSet = variantCommandMapper.toChangeSet(request, username);
     product.apply(updateSet);
 
-    return new ProductResponse(request.productId());
+    return new ProductResponse(product.getId().toUuid());
   }
 }

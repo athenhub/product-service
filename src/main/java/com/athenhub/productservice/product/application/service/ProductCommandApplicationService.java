@@ -1,6 +1,8 @@
 package com.athenhub.productservice.product.application.service;
 
-import static com.athenhub.productservice.product.application.exception.ProductServiceErrorCode.*;
+import static com.athenhub.productservice.product.application.exception.ProductServiceErrorCode.CREATE_NOT_ALLOWED;
+import static com.athenhub.productservice.product.application.exception.ProductServiceErrorCode.DELETE_NOT_ALLOWED;
+import static com.athenhub.productservice.product.application.exception.ProductServiceErrorCode.UPDATE_NOT_ALLOWED;
 
 import com.athenhub.productservice.product.application.dto.ProductBasicUpdateRequest;
 import com.athenhub.productservice.product.application.dto.ProductRegisterRequest;
@@ -75,14 +77,15 @@ public class ProductCommandApplicationService {
    * @return 수정된 상품 정보
    * @throws ProductServiceException 상품 수정 권한이 없는 경우
    */
-  public ProductResponse updateBasicInfo(ProductBasicUpdateRequest request, UUID userId) {
-    Product product = productQueryService.get(request.productId());
+  public ProductResponse updateBasicInfo(
+      UUID productId, ProductBasicUpdateRequest request, UUID userId) {
+    Product product = productQueryService.get(productId);
 
     if (permissionPolicy.isUpdateDenied(userId, product.getHubId(), product.getVendorId())) {
       throw new ProductServiceException(UPDATE_NOT_ALLOWED);
     }
 
-    return productUpdateService.updateBasicInfo(request);
+    return productUpdateService.updateBasicInfo(productId, request);
   }
 
   /**
@@ -91,20 +94,20 @@ public class ProductCommandApplicationService {
    * <p>상품 기본 정보 수정과 동일한 흐름으로, Variant 수정만 별도의 도메인 서비스에 위임한다.
    *
    * @param request 옵션 수정 요청 DTO
-   * @param requestId 요청자 인증 정보(UUID)
+   * @param userid 요청자 인증 정보(UUID)
    * @param username 수정 작업을 수행하는 사용자명(감사 로그용)
    * @return 수정된 상품 정보
    * @throws ProductServiceException 수정 권한이 없는 경우
    */
   public ProductResponse updateVariants(
-      ProductVariantUpdateRequest request, UUID requestId, String username) {
-    Product product = productQueryService.get(request.productId());
+      UUID productId, ProductVariantUpdateRequest request, UUID userid, String username) {
+    Product product = productQueryService.get(productId);
 
-    if (permissionPolicy.isUpdateDenied(requestId, product.getHubId(), product.getVendorId())) {
+    if (permissionPolicy.isUpdateDenied(userid, product.getHubId(), product.getVendorId())) {
       throw new ProductServiceException(UPDATE_NOT_ALLOWED);
     }
 
-    return productUpdateService.updateProductVariant(request, username);
+    return productUpdateService.updateProductVariant(productId, request, username);
   }
 
   /**
