@@ -1,24 +1,18 @@
 package com.athenhub.productservice.product.application.service;
 
-import static com.athenhub.productservice.product.application.exception.ProductServiceErrorCode.CREATE_NOT_ALLOWED;
-import static com.athenhub.productservice.product.application.exception.ProductServiceErrorCode.DELETE_NOT_ALLOWED;
-import static com.athenhub.productservice.product.application.exception.ProductServiceErrorCode.UPDATE_NOT_ALLOWED;
+import static com.athenhub.productservice.product.application.exception.ProductServiceErrorCode.*;
 
-import com.athenhub.commoncore.error.GlobalErrorCode;
-import com.athenhub.productservice.membership.domain.MemberRole;
-import com.athenhub.productservice.membership.domain.MemberRoles;
-import com.athenhub.productservice.product.application.dto.*;
+import com.athenhub.productservice.product.application.dto.ProductBasicUpdateRequest;
+import com.athenhub.productservice.product.application.dto.ProductRegisterRequest;
+import com.athenhub.productservice.product.application.dto.ProductResponse;
+import com.athenhub.productservice.product.application.dto.ProductVariantUpdateRequest;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
 import com.athenhub.productservice.product.domain.Product;
-import com.athenhub.productservice.product.domain.dto.MemberInfo;
-import com.athenhub.productservice.product.domain.service.MembershipProvider;
 import com.athenhub.productservice.product.domain.service.PermissionPolicy;
 import com.athenhub.productservice.product.domain.vo.HubId;
 import com.athenhub.productservice.product.domain.vo.VendorId;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -41,7 +35,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
-public class ProductApplicationService {
+public class ProductCommandApplicationService {
 
   private final ProductRegisterService productRegisterService;
   private final ProductUpdateService productUpdateService;
@@ -49,7 +43,6 @@ public class ProductApplicationService {
   private final ProductQueryService productQueryService;
 
   private final PermissionPolicy permissionPolicy;
-  private final MembershipProvider membershipProvider;
 
   /**
    * 상품 등록 유스케이스를 실행한다.
@@ -140,46 +133,5 @@ public class ProductApplicationService {
     }
 
     productDeleteService.delete(productId, username);
-  }
-
-  /**
-   * 사용자가 관리할 수 있는 상품 목록을 조회한다.
-   *
-   * <p>사용자의 역할(Role)에 따라 조회 범위가 달라진다.
-   *
-   * <ul>
-   *   <li>{@link MemberRole#MASTER_MANAGER} → 전체 상품 조회
-   *   <li>{@link MemberRole#HUB_MANAGER} → 소속 허브의 상품 조회
-   *   <li>{@link MemberRole#VENDOR_AGENT} → 소속 벤더의 상품 조회
-   * </ul>
-   *
-   * <p>소속 정보는 {@link MembershipProvider}를 통해 조회하며, 조회 결과는 {@link ProductSummary}로 변환되어 반환된다.
-   *
-   * @param userId 요청자의 사용자 ID
-   * @param memberRoles 요청자의 역할 목록
-   * @param pageable 페이지 정보
-   * @return 사용자에게 허용된 범위의 상품 목록
-   * @throws ProductServiceException 권한이 없는 경우
-   */
-  public Page<ProductSummary> getProductsManagedBy(
-      UUID userId, MemberRoles memberRoles, Pageable pageable) {
-    MemberInfo member = membershipProvider.getMember(userId);
-
-    Page<Product> result;
-
-    if (memberRoles.containsMasterManager()) {
-      result = productQueryService.getAll(pageable);
-
-    } else if (memberRoles.containsHubManager()) {
-      result = productQueryService.getByHubId(member.hubId(), pageable);
-
-    } else if (memberRoles.containsVendorAgent()) {
-      result = productQueryService.getByVendorId(member.vendorId(), pageable);
-
-    } else {
-      throw new ProductServiceException(GlobalErrorCode.FORBIDDEN);
-    }
-
-    return result.map(ProductSummary::from);
   }
 }

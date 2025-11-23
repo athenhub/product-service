@@ -4,6 +4,7 @@ import static com.athenhub.productservice.product.application.exception.ProductS
 
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
 import com.athenhub.productservice.product.domain.Product;
+import com.athenhub.productservice.product.domain.dto.SearchDaoRequest;
 import com.athenhub.productservice.product.domain.repository.ProductDetailRepository;
 import com.athenhub.productservice.product.domain.repository.ProductRepository;
 import com.athenhub.productservice.product.domain.vo.HubId;
@@ -87,5 +88,20 @@ public class ProductQueryService {
    */
   public Page<Product> getAll(Pageable pageable) {
     return productDetailRepository.findAll(pageable);
+  }
+
+  /**
+   * 조건 기반으로 상품 목록을 검색한다.
+   *
+   * <p>{@link SearchDaoRequest}에 전달된 조건에 따라 상품을 조회하며, 페이지네이션 정보({@link Pageable})를 적용하여 결과를 반환한다.
+   *
+   * <p>실제 조회 로직은 {@link ProductDetailRepository#search(SearchDaoRequest, Pageable)} 에 위임된다.
+   *
+   * @param request 검색 조건 DTO (상품명, 허브, 벤더, 가격 범위 등)
+   * @param pageable 페이지 정보
+   * @return 조건에 맞는 상품 목록(Page)
+   */
+  public Page<Product> search(SearchDaoRequest request, Pageable pageable) {
+    return productDetailRepository.search(request, pageable);
   }
 }
