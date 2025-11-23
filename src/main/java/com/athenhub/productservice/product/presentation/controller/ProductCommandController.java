@@ -1,6 +1,7 @@
-package com.athenhub.productservice.product.presentation;
+package com.athenhub.productservice.product.presentation.controller;
 
 import com.athenhub.commonmvc.security.AuthenticatedUser;
+import com.athenhub.productservice.membership.domain.MemberRole;
 import com.athenhub.productservice.product.application.dto.ProductBasicUpdateRequest;
 import com.athenhub.productservice.product.application.dto.ProductRegisterRequest;
 import com.athenhub.productservice.product.application.dto.ProductResponse;
@@ -9,6 +10,7 @@ import com.athenhub.productservice.product.application.service.ProductCommandApp
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,10 +38,19 @@ public class ProductCommandController {
   /**
    * 상품 등록.
    *
+   * <p><b>접근 권한</b>
+   *
+   * <ul>
+   *   <li>{@link MemberRole#MASTER_MANAGER}
+   *   <li>{@link MemberRole#HUB_MANAGER}
+   *   <li>{@link MemberRole#VENDOR_AGENT}
+   * </ul>
+   *
    * @param request 상품 등록 요청 DTO
    * @param authenticatedUser 로그인한 사용자 정보
    * @return 등록된 상품 정보
    */
+  @PreAuthorize("hasAnyRole('MASTER_MANAGER', 'HUB_MANAGER', 'VENDOR_AGENT')")
   @PostMapping
   public ProductResponse register(
       @Valid @RequestBody ProductRegisterRequest request,
@@ -51,10 +62,19 @@ public class ProductCommandController {
   /**
    * 상품 기본 정보 수정.
    *
+   * <p><b>접근 권한</b>
+   *
+   * <ul>
+   *   <li>{@link MemberRole#MASTER_MANAGER}
+   *   <li>{@link MemberRole#HUB_MANAGER}
+   *   <li>{@link MemberRole#VENDOR_AGENT}
+   * </ul>
+   *
    * @param request 상품 수정 요청 DTO
    * @param authenticatedUser 로그인한 사용자 정보
    * @return 수정된 상품 정보
    */
+  @PreAuthorize("hasAnyRole('MASTER_MANAGER', 'HUB_MANAGER', 'VENDOR_AGENT')")
   @PutMapping("/{productId}/basic")
   public ProductResponse updateBasicInfo(
       @PathVariable UUID productId,
@@ -67,13 +87,22 @@ public class ProductCommandController {
   /**
    * 상품 옵션(Variant) 수정.
    *
+   * <p><b>접근 권한</b>
+   *
+   * <ul>
+   *   <li>{@link MemberRole#MASTER_MANAGER}
+   *   <li>{@link MemberRole#HUB_MANAGER}
+   *   <li>{@link MemberRole#VENDOR_AGENT}
+   * </ul>
+   *
    * @param request 옵션 수정 요청
    * @param authenticatedUser 로그인한 사용자 정보
    * @return 수정된 상품 정보
    */
+  @PreAuthorize("hasAnyRole('MASTER_MANAGER', 'HUB_MANAGER', 'VENDOR_AGENT')")
   @PutMapping("/{productId}/variants")
   public ProductResponse updateVariants(
-      UUID productId,
+      @PathVariable UUID productId,
       @RequestBody ProductVariantUpdateRequest request,
       @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
 
@@ -84,9 +113,17 @@ public class ProductCommandController {
   /**
    * 상품 삭제(논리 삭제).
    *
+   * <p><b>접근 권한</b>
+   *
+   * <ul>
+   *   <li>{@link MemberRole#MASTER_MANAGER}
+   *   <li>{@link MemberRole#HUB_MANAGER}
+   * </ul>
+   *
    * @param productId 상품 ID
    * @param authenticatedUser 로그인한 사용자 정보
    */
+  @PreAuthorize("hasAnyRole('MASTER_MANAGER', 'HUB_MANAGER')")
   @DeleteMapping("/{productId}")
   public void delete(
       @PathVariable UUID productId, @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {

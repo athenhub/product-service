@@ -1,4 +1,4 @@
-package com.athenhub.productservice.product.presentation;
+package com.athenhub.productservice.product.presentation.controller;
 
 import com.athenhub.commonmvc.security.AuthenticatedUser;
 import com.athenhub.productservice.membership.domain.MemberRole;
@@ -11,9 +11,11 @@ import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.dto.SearchDaoRequest;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -96,13 +98,15 @@ public class ProductQueryController {
    * @param pageable 페이지 정보
    * @return 사용자가 관리 가능한 상품 목록
    */
+  @PreAuthorize("hasAnyRole('MASTER_MANAGER', 'HUB_MANAGER', 'VENDOR_AGENT')")
   @GetMapping("/managed")
   public Page<ProductSummary> managed(
       @AuthenticationPrincipal AuthenticatedUser authenticatedUser, Pageable pageable) {
 
     List<MemberRole> memberRoleList =
-        authenticatedUser.getAuthorities().stream()
-            .map(it -> MemberRole.valueOf(it.getAuthority()))
+        Stream.of(authenticatedUser.roles().split(","))
+            .map(role -> role.replace("ROLE_", ""))
+            .map(MemberRole::valueOf)
             .toList();
 
     return queryApplicationService.getProductsManagedBy(
