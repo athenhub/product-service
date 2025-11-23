@@ -51,5 +51,11 @@ public interface ProductDetailRepository {
    */
   Page<Product> findByVendorId(VendorId vendorId, Pageable pageable);
 
+  /**
+   * 모든 상품 목록을 페이지 단위로 조회한다.
+   *
+   * @param pageable 페이지 정보
+   * @return {@link Product}의 {@link Page}
+   */
   Page<Product> findAll(Pageable pageable);
 }

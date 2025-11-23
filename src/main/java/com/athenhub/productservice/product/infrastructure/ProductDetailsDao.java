@@ -140,31 +140,41 @@ public class ProductDetailsDao implements ProductDetailRepository {
 
   /** 상품명 시작 문자열 조건 (대소문자 무시). */
   private Predicate nameStartWith(String name) {
-    if (!StringUtils.hasText(name)) return null;
+    if (!StringUtils.hasText(name)) {
+      return null;
+    }
     return QProduct.product.name.startsWithIgnoreCase(name);
   }
 
   /** 최소 가격 이상 조건 (>=). */
   private Predicate minPriceGoe(Long price) {
-    if (price == null || price <= 0) return null;
+    if (price == null || price <= 0) {
+      return null;
+    }
     return QProduct.product.price.amount.goe(price);
   }
 
   /** 최대 가격 이하 조건 (<=). */
   private Predicate maxPriceLoe(Long price) {
-    if (price == null || price <= 0) return null;
+    if (price == null || price <= 0) {
+      return null;
+    }
     return QProduct.product.price.amount.loe(price);
   }
 
   /** 허브 ID 조건. */
   private Predicate hubIdEq(HubId hubId) {
-    if (hubId == null) return null;
+    if (hubId == null) {
+      return null;
+    }
     return QProduct.product.hubId.eq(hubId);
   }
 
   /** 벤더 ID 조건. */
   private Predicate vendorIdEq(VendorId vendorId) {
-    if (vendorId == null) return null;
+    if (vendorId == null) {
+      return null;
+    }
     return QProduct.product.vendorId.eq(vendorId);
   }
 
