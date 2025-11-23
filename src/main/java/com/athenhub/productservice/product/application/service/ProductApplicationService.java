@@ -12,6 +12,7 @@ import com.athenhub.productservice.product.application.dto.ProductRegisterReques
 import com.athenhub.productservice.product.application.dto.ProductResponse;
 import com.athenhub.productservice.product.application.dto.ProductVariantUpdateRequest;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
+import com.athenhub.productservice.product.application.service.statagy.ProductQueryStrategy;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.dto.MemberInfo;
 import com.athenhub.productservice.product.domain.dto.ProductDetails;
@@ -19,6 +20,7 @@ import com.athenhub.productservice.product.domain.service.MembershipProvider;
 import com.athenhub.productservice.product.domain.service.PermissionPolicy;
 import com.athenhub.productservice.product.domain.vo.HubId;
 import com.athenhub.productservice.product.domain.vo.VendorId;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -69,11 +71,8 @@ public class ProductApplicationService {
    * @throws ProductServiceException 권한이 없는 경우
    */
   public ProductResponse register(ProductRegisterRequest request, UUID userId) {
-    if (permissionPolicy.isCreateDenied(
-        userId, HubId.of(request.hubId()), VendorId.of(request.vendorId()))) {
+    validateCreatePolicy(request, userId);
 
-      throw new ProductServiceException(CREATE_NOT_ALLOWED);
-    }
     return productRegisterService.register(request);
   }
 
@@ -91,9 +90,7 @@ public class ProductApplicationService {
   public ProductResponse updateBasicInfo(ProductBasicUpdateRequest request, UUID userId) {
     Product product = productQueryService.get(request.productId());
 
-    if (permissionPolicy.isUpdateDenied(userId, product.getHubId(), product.getVendorId())) {
-      throw new ProductServiceException(UPDATE_NOT_ALLOWED);
-    }
+    validateUpdatePolicy(userId, product);
 
     return productUpdateService.updateBasicInfo(request);
   }
@@ -113,9 +110,7 @@ public class ProductApplicationService {
       ProductVariantUpdateRequest request, UUID requestId, String username) {
     Product product = productQueryService.get(request.productId());
 
-    if (permissionPolicy.isUpdateDenied(requestId, product.getHubId(), product.getVendorId())) {
-      throw new ProductServiceException(UPDATE_NOT_ALLOWED);
-    }
+    validateUpdatePolicy(requestId, product);
 
     return productUpdateService.updateProductVariant(request, username);
   }
@@ -141,9 +136,7 @@ public class ProductApplicationService {
   public void delete(UUID productId, UUID userId, String username) {
     Product product = productQueryService.get(productId);
 
-    if (permissionPolicy.isDeleteDenied(userId, product.getHubId())) {
-      throw new ProductServiceException(DELETE_NOT_ALLOWED);
-    }
+    validateDeletePolicy(userId, product);
 
     productDeleteService.delete(productId, username);
   }
@@ -179,15 +172,21 @@ public class ProductApplicationService {
     if (permissionPolicy.isCreateDenied(
         userId, HubId.of(request.hubId()), VendorId.of(request.vendorId()))) {
 
-    } else if (memberRoles.containsHubManager()) {
-      result = productQueryService.getByHubId(member.hubId(), pageable);
-
-    } else if (memberRoles.containsVendorAgent()) {
-      result = productQueryService.getByVendorId(member.vendorId(), pageable);
-
-    } else {
-      throw new ProductServiceException(GlobalErrorCode.FORBIDDEN);
+      throw new ProductServiceException(CREATE_NOT_ALLOWED);
     }
+  }
+
+  private void validateUpdatePolicy(UUID userId, Product product) {
+    if (permissionPolicy.isUpdateDenied(userId, product.getHubId(), product.getVendorId())) {
+      throw new ProductServiceException(UPDATE_NOT_ALLOWED);
+    }
+  }
+
+  private void validateDeletePolicy(UUID userId, Product product) {
+    if (permissionPolicy.isDeleteDenied(userId, product.getHubId())) {
+      throw new ProductServiceException(DELETE_NOT_ALLOWED);
+    }
+  }
 
   private Page<Product> getProductsByRole(
       MemberRoles memberRoles, Pageable pageable, MemberInfo member) {
