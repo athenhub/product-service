@@ -175,8 +175,9 @@ public class ProductApplicationService {
     return products.map(ProductDetails::from);
   }
 
-    if (memberRoles.containsMasterManager()) {
-      result = productQueryService.getAll(pageable);
+  private void validateCreatePolicy(ProductRegisterRequest request, UUID userId) {
+    if (permissionPolicy.isCreateDenied(
+        userId, HubId.of(request.hubId()), VendorId.of(request.vendorId()))) {
 
     } else if (memberRoles.containsHubManager()) {
       result = productQueryService.getByHubId(member.hubId(), pageable);
