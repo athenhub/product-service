@@ -8,7 +8,7 @@ import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductFixture;
 import com.athenhub.productservice.product.domain.ProductType;
 import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
-import com.athenhub.productservice.product.domain.dto.SearchRequest;
+import com.athenhub.productservice.product.domain.dto.SearchDaoRequest;
 import com.athenhub.productservice.product.domain.vo.HubId;
 import com.athenhub.productservice.product.domain.vo.Price;
 import com.athenhub.productservice.product.domain.vo.VendorId;
@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 @DataJpaTest
 @Import({ProductDetailsDao.class, QuerydslConfig.class, JpaAuditingConfig.class})
@@ -52,10 +53,10 @@ class ProductDetailsDaoTest {
   @DisplayName("상품명으로 startsWith + 페이징 조회")
   void find_by_name_startsWith() {
     // given
-    SearchRequest search = new SearchRequest("나이키", null, null, null, null);
+    SearchDaoRequest search = new SearchDaoRequest("나이키", null, null, null, null);
 
     // when
-    Page<Product> result = productDetailsDao.findAll(search, 1, 10);
+    Page<Product> result = productDetailsDao.search(search, PageRequest.of(0, 10));
 
     // then
     assertThat(result.getContent()).hasSize(2);
@@ -67,10 +68,10 @@ class ProductDetailsDaoTest {
   @DisplayName("가격 범위(min~max) 조회")
   void find_by_price_range() {
     // given
-    SearchRequest search = new SearchRequest(null, null, null, 10000L, 30000L);
+    SearchDaoRequest search = new SearchDaoRequest(null, null, null, 10000L, 30000L);
 
     // when
-    Page<Product> result = productDetailsDao.findAll(search, 1, 10);
+    Page<Product> result = productDetailsDao.search(search, PageRequest.of(0, 10));
 
     // then
     assertThat(result.getContent()).hasSize(3);
@@ -82,10 +83,10 @@ class ProductDetailsDaoTest {
   @DisplayName("허브 + 벤더 조건 조회")
   void find_by_hub_and_vendor() {
     // given
-    SearchRequest search = new SearchRequest(null, hubId.toUuid(), vendorId.toUuid(), null, null);
+    SearchDaoRequest search = new SearchDaoRequest(null, hubId, vendorId, null, null);
 
     // when
-    Page<Product> result = productDetailsDao.findAll(search, 1, 10);
+    Page<Product> result = productDetailsDao.search(search, PageRequest.of(0, 10));
 
     // then
     assertThat(result.getContent()).hasSize(1);
@@ -97,10 +98,10 @@ class ProductDetailsDaoTest {
   @DisplayName("논리 삭제된 상품은 조회에서 제외")
   void not_deleted_only() {
     // given
-    SearchRequest search = new SearchRequest(null, null, null, null, null);
+    SearchDaoRequest search = new SearchDaoRequest(null, null, null, null, null);
 
     // when
-    Page<Product> result = productDetailsDao.findAll(search, 1, 10);
+    Page<Product> result = productDetailsDao.search(search, PageRequest.of(0, 10));
 
     // then (삭제 상품 제외: 총 4개 -> 3개로 줄어야 함)
     assertThat(result.getTotalElements()).isEqualTo(3);
@@ -110,16 +111,44 @@ class ProductDetailsDaoTest {
   @DisplayName("상품 조회시 옵션 정보도 함께 조회한다.")
   void find_by_name_with_variant() {
     // given
-    SearchRequest search = new SearchRequest("아디다스 신발", null, null, null, null);
+    SearchDaoRequest search = new SearchDaoRequest("아디다스 신발", null, null, null, null);
 
     // when
-    Page<Product> result = productDetailsDao.findAll(search, 1, 10);
+    Page<Product> result = productDetailsDao.search(search, PageRequest.of(0, 10));
     Product product = result.getContent().getFirst();
 
     assertThat(product.getVariants())
         .hasSize(2)
         .extracting("color.value", "size.value")
         .contains(tuple("RED", "265"), tuple("RED", "270"));
+  }
+
+  @Test
+  @DisplayName("hubId로 상품을 조회한다")
+  void find_by_hubId() {
+    // when
+    Page<Product> result = productDetailsDao.findByHubId(hubId, PageRequest.of(0, 10));
+
+    // then
+    assertThat(result.getContent()).hasSize(2).extracting("name").contains("나이키 모자", "나이키 신발");
+  }
+
+  @Test
+  @DisplayName("vendorId로 상품을 조회한다")
+  void find_by_vendorId() {
+    Page<Product> result = productDetailsDao.findByVendorId(vendorId, PageRequest.of(0, 10));
+
+    // then
+    assertThat(result.getContent()).hasSize(2).extracting("name").contains("아디다스 신발", "나이키 신발");
+  }
+
+  @Test
+  @DisplayName("모든 상품을 조회한다. 삭제된 상품도 조회한다.")
+  void find_all() {
+    Page<Product> result = productDetailsDao.findAll(PageRequest.of(0, 10));
+
+    // then
+    assertThat(result.getContent()).hasSize(4);
   }
 
   @TestConfiguration

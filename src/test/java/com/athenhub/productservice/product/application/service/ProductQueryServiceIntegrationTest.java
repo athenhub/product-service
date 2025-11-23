@@ -37,7 +37,7 @@ class ProductQueryServiceIntegrationTest {
 
     // when
     UUID targetId = product.getId().toUuid();
-    Product foundProduct = productQueryService.getProduct(targetId);
+    Product foundProduct = productQueryService.get(targetId);
 
     // then
     assertThat(foundProduct.getId()).isNotNull();
@@ -65,7 +65,7 @@ class ProductQueryServiceIntegrationTest {
 
     // when
     UUID targetId = product.getId().toUuid();
-    Product foundProduct = productQueryService.getProduct(targetId);
+    Product foundProduct = productQueryService.get(targetId);
 
     // then
     assertThat(foundProduct.getId()).isNotNull();
@@ -82,12 +82,12 @@ class ProductQueryServiceIntegrationTest {
 
   @Test
   @DisplayName("존재하지 않는 상품을 조회하면 PRODUCT_NOT_FOUND 예외가 발생한다")
-  void getProduct_fail_not_found() {
+  void get_fail_not_found() {
     // given
     UUID productId = UUID.randomUUID();
 
     // then
-    assertThatThrownBy(() -> productQueryService.getProduct(productId))
+    assertThatThrownBy(() -> productQueryService.get(productId))
         .isInstanceOf(ProductServiceException.class)
         .satisfies(
             e -> {

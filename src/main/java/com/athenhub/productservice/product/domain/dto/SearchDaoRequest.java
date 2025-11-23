@@ -1,6 +1,7 @@
 package com.athenhub.productservice.product.domain.dto;
 
-import java.util.UUID;
+import com.athenhub.productservice.product.domain.vo.HubId;
+import com.athenhub.productservice.product.domain.vo.VendorId;
 
 /**
  * 상품 검색 조건을 전달하기 위한 요청 DTO.
@@ -28,4 +29,5 @@ import java.util.UUID;
  * @author 김지원
  * @since 1.0.0
  */
-public record SearchRequest(String name, UUID hubId, UUID vendorId, Long minPrice, Long maxPrice) {}
+public record SearchDaoRequest(
+    String name, HubId hubId, VendorId vendorId, Long minPrice, Long maxPrice) {}
