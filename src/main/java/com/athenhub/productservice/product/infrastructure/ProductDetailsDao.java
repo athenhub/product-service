@@ -2,7 +2,7 @@ package com.athenhub.productservice.product.infrastructure;
 
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.QProduct;
-import com.athenhub.productservice.product.domain.dto.SearchDto;
+import com.athenhub.productservice.product.domain.dto.SearchRequest;
 import com.athenhub.productservice.product.domain.repository.ProductDetailRepository;
 import com.athenhub.productservice.product.domain.vo.HubId;
 import com.athenhub.productservice.product.domain.vo.VendorId;
@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 /**
@@ -37,6 +38,7 @@ import org.springframework.util.StringUtils;
  * @author 김지원
  * @since 1.0.0
  */
+@Repository
 @RequiredArgsConstructor
 public class ProductDetailsDao implements ProductDetailRepository {
 
@@ -51,7 +53,7 @@ public class ProductDetailsDao implements ProductDetailRepository {
    * @return Page 형태의 상품 목록
    */
   @Override
-  public Page<Product> findAll(SearchDto search, int page, int size) {
+  public Page<Product> findAll(SearchRequest search, int page, int size) {
     QProduct product = QProduct.product;
 
     int safePage = Math.max(page, 1);
@@ -93,7 +95,7 @@ public class ProductDetailsDao implements ProductDetailRepository {
         results, PageRequest.of(safePage - 1, safeSize), total == null ? 0 : total);
   }
 
-  /** 상품명 시작 문자열 조건 (대소문자 무시) */
+  /** 상품명 시작 문자열 조건 (대소문자 무시). */
   private Predicate nameStartWith(String name) {
     if (!StringUtils.hasText(name)) {
       return null;
@@ -102,7 +104,7 @@ public class ProductDetailsDao implements ProductDetailRepository {
     return product.name.startsWithIgnoreCase(name);
   }
 
-  /** 최소 가격 이상 조건 (>=) */
+  /** 최소 가격 이상 조건 (>=). */
   private Predicate minPriceGoe(Long price) {
     if (price == null || price <= 0) {
       return null;
@@ -111,7 +113,7 @@ public class ProductDetailsDao implements ProductDetailRepository {
     return product.price.amount.goe(price);
   }
 
-  /** 최대 가격 이하 조건 (<=) */
+  /** 최대 가격 이하 조건 (<=). */
   private Predicate maxPriceLoe(Long price) {
     if (price == null || price <= 0) {
       return null;
@@ -120,7 +122,7 @@ public class ProductDetailsDao implements ProductDetailRepository {
     return product.price.amount.loe(price);
   }
 
-  /** 허브 ID 조건 */
+  /** 허브 ID 조건. */
   private Predicate hubIdEq(UUID hubId) {
     if (hubId == null) {
       return null;
@@ -129,7 +131,7 @@ public class ProductDetailsDao implements ProductDetailRepository {
     return product.hubId.eq(HubId.of(hubId));
   }
 
-  /** 벤더 ID 조건 */
+  /** 벤더 ID 조건. */
   private Predicate vendorIdEq(UUID vendorId) {
     if (vendorId == null) {
       return null;
@@ -138,7 +140,7 @@ public class ProductDetailsDao implements ProductDetailRepository {
     return product.vendorId.eq(VendorId.of(vendorId));
   }
 
-  /** 논리 삭제되지 않은 상품만 조회 */
+  /** 논리 삭제되지 않은 상품만 조회. */
   private Predicate notDeleted() {
     QProduct product = QProduct.product;
     return product.deletedAt.isNull();
