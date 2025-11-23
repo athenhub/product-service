@@ -7,14 +7,10 @@ import static com.athenhub.productservice.product.application.exception.ProductS
 import com.athenhub.commoncore.error.GlobalErrorCode;
 import com.athenhub.productservice.membership.domain.MemberRole;
 import com.athenhub.productservice.membership.domain.MemberRoles;
-import com.athenhub.productservice.product.application.dto.ProductBasicUpdateRequest;
-import com.athenhub.productservice.product.application.dto.ProductRegisterRequest;
-import com.athenhub.productservice.product.application.dto.ProductResponse;
-import com.athenhub.productservice.product.application.dto.ProductVariantUpdateRequest;
+import com.athenhub.productservice.product.application.dto.*;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.dto.MemberInfo;
-import com.athenhub.productservice.product.domain.dto.ProductDetails;
 import com.athenhub.productservice.product.domain.service.MembershipProvider;
 import com.athenhub.productservice.product.domain.service.PermissionPolicy;
 import com.athenhub.productservice.product.domain.vo.HubId;
@@ -157,7 +153,7 @@ public class ProductApplicationService {
    *   <li>{@link MemberRole#VENDOR_AGENT} → 소속 벤더의 상품 조회
    * </ul>
    *
-   * <p>소속 정보는 {@link MembershipProvider}를 통해 조회하며, 조회 결과는 {@link ProductDetails}로 변환되어 반환된다.
+   * <p>소속 정보는 {@link MembershipProvider}를 통해 조회하며, 조회 결과는 {@link ProductSummary}로 변환되어 반환된다.
    *
    * @param userId 요청자의 사용자 ID
    * @param memberRoles 요청자의 역할 목록
@@ -165,7 +161,7 @@ public class ProductApplicationService {
    * @return 사용자에게 허용된 범위의 상품 목록
    * @throws ProductServiceException 권한이 없는 경우
    */
-  public Page<ProductDetails> getProductsManagedBy(
+  public Page<ProductSummary> getProductsManagedBy(
       UUID userId, MemberRoles memberRoles, Pageable pageable) {
     MemberInfo member = membershipProvider.getMember(userId);
 
@@ -184,6 +180,6 @@ public class ProductApplicationService {
       throw new ProductServiceException(GlobalErrorCode.FORBIDDEN);
     }
 
-    return result.map(ProductDetails::from);
+    return result.map(ProductSummary::from);
   }
 }
