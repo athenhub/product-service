@@ -45,6 +45,12 @@ import lombok.NoArgsConstructor;
 @Getter
 public class ProductVariant extends AbstractAuditEntity {
 
+  /** 상품이 옵션을 가지지 않는 경우를 표현하며 "없음(NONE)"의 의미를 가진다. */
+  private static String DEFAULT_COLOR = "NONE";
+
+  /** 상품이 옵션을 가지지 않는 경우를 표현하며 "없음(NONE)"의 의미를 가진다. */
+  private static String DEFAULT_SIZE = "NONE";
+
   /** 옵션 ID (Aggregate 내부 식별자). */
   @EmbeddedId private ProductVariantId id;
 
@@ -73,6 +79,32 @@ public class ProductVariant extends AbstractAuditEntity {
     productVariant.id = ProductVariantId.create();
     productVariant.color = request.color();
     productVariant.size = request.size();
+    return productVariant;
+  }
+
+  /**
+   * SIMPLE(NORMAL) 타입 상품을 위한 기본(Default) 옵션을 생성한다.
+   *
+   * <p>이 메서드는 색상과 사이즈 개념이 없는 단일 상품을 표현하기 위해 사용되며, 다음과 같은 특징을 가진다:
+   *
+   * <ul>
+   *   <li>{@link ProductColor} 는 {@code NONE} 으로 설정된다
+   *   <li>{@link ProductSize} 는 {@code NONE} 으로 설정된다
+   *   <li>이 Variant는 "실제 옵션"이 아닌, <b>논리적 기본값(Default)</b>을 의미한다
+   * </ul>
+   *
+   * <p>이 메서드는 {@code Product.create(...)} 또는 {@code ProductVariants.createDefault(...)} 내부에서만 사용되는
+   * 것을 전제로 한다. 즉, 외부 애플리케이션 레이어에서 직접 사용하지 않는다.
+   *
+   * @return 기본 옵션을 나타내는 ProductVariant
+   * @author 김지원
+   * @since 1.0.0
+   */
+  public static ProductVariant createDefault() {
+    ProductVariant productVariant = new ProductVariant();
+    productVariant.id = ProductVariantId.create();
+    productVariant.color = ProductColor.of(DEFAULT_COLOR);
+    productVariant.size = ProductSize.of(DEFAULT_SIZE);
     return productVariant;
   }
 
