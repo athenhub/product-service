@@ -114,6 +114,11 @@ public class Product extends AbstractAuditEntity {
     product.vendorId = command.vendorId();
     product.type = command.type();
     product.status = ProductStatus.DRAFT;
+
+    if (ProductType.isSimple(command.type())) {
+      product.variants = ProductVariants.createDefault(product);
+    }
+
     return product;
   }
 
