@@ -46,7 +46,10 @@ class ProductQueryServiceIntegrationTest {
     assertThat(foundProduct.getPrice()).isEqualTo(Price.of(1000));
     assertThat(foundProduct.getType()).isEqualTo(ProductType.SIMPLE);
     assertThat(foundProduct.getStatus()).isEqualTo(ProductStatus.DRAFT);
-    assertThat(foundProduct.getVariants()).hasSize(0);
+    assertThat(foundProduct.getVariants())
+        .hasSize(1)
+        .extracting("color.value", "size.value")
+        .contains(tuple("NONE", "NONE"));
   }
 
   @Test
