@@ -6,7 +6,6 @@ package com.athenhub.productservice.membership.domain;
  * <p>각 역할에 따라 접근 가능한 리소스와 수행 가능한 행위가 달라지며, 상품 조회, 등록, 수정, 배송 처리 등의 권한 판단 기준으로 사용된다.
  *
  * <ul>
- *   <li>{@link #USER} : 일반 사용자
  *   <li>{@link #MASTER_MANAGER} : 마스터 관리자
  *   <li>{@link #HUB_MANAGER} : 허브 관리자
  *   <li>{@link #SHIPPING_AGENT} : 배송 담당자
@@ -19,10 +18,6 @@ package com.athenhub.productservice.membership.domain;
  * @since 1.0.0
  */
 public enum MemberRole {
-
-  /** 일반 사용자. */
-  USER,
-
   /** 마스터 관리자. */
   MASTER_MANAGER,
 
