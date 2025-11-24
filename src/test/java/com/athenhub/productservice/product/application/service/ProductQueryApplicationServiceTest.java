@@ -139,7 +139,7 @@ class ProductQueryApplicationServiceTest {
   @DisplayName("권한이 없으면 실패한다.")
   void getProductsManagedBy_no_permission_fail() {
     // given
-    MemberRoles roles = MemberRoles.of(List.of(MemberRole.USER));
+    MemberRoles roles = MemberRoles.of(List.of(MemberRole.SHIPPING_AGENT));
 
     when(membershipProvider.getMember(userId)).thenReturn(memberInfo);
 
