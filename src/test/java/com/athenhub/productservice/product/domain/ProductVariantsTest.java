@@ -53,6 +53,22 @@ class ProductVariantsTest {
     }
 
     @Test
+    @DisplayName("삭제된 옵션은 조회 할 수 없다.")
+    void get_deletedVariant_fail() {
+      // given
+      Product product = productOption();
+      ProductVariants variants = new ProductVariants();
+
+      ProductVariant variant = ProductVariant.create(createCmd("RED", "M"));
+      variant.delete("test-user");
+      variants.add(variant, product);
+
+      // when & then
+      assertThatThrownBy(() -> variants.get(ProductVariantId.create()))
+          .isInstanceOf(VariantNotFoundException.class);
+    }
+
+    @Test
     @DisplayName("존재하지 않는 옵션 조회 시 예외 발생")
     void getVariant_fail_notFound() {
       // given
@@ -83,6 +99,24 @@ class ProductVariantsTest {
 
       // then
       assertThat(variants.exists(v2)).isTrue();
+    }
+
+    @Test
+    @DisplayName("삭제된 옵션은 조회에서 제외한다.")
+    void exists_including_deleted_variant() {
+      // given
+      Product product = productOption();
+      ProductVariants variants = new ProductVariants();
+
+      ProductVariant v1 = ProductVariant.create(createCmd("RED", "M"));
+      v1.delete("test-user");
+      variants.add(v1, product);
+
+      // when
+      ProductVariant v2 = ProductVariant.create(createCmd("RED", "M"));
+
+      // then
+      assertThat(variants.exists(v2)).isFalse();
     }
 
     @Test

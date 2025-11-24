@@ -26,6 +26,18 @@ class ProductVariantTest {
   }
 
   @Test
+  void createDefault() {
+    // when
+    ProductVariant productVariant = ProductVariant.createDefault();
+
+    // then
+    assertThat(productVariant);
+    assertThat(productVariant.getId()).isNotNull();
+    assertThat(productVariant.getColor()).isEqualTo(ProductColor.of("NONE"));
+    assertThat(productVariant.getSize()).isEqualTo(ProductSize.of("NONE"));
+  }
+
+  @Test
   void update() {
     // given
     ProductVariant productVariant = createProductVariant("RED", "M");
