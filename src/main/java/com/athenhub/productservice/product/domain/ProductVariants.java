@@ -66,6 +66,18 @@ public class ProductVariants {
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ProductVariant> values = new ArrayList<>();
 
+  /**
+   * 옵션이 없는 상품(SIMPLE/NORMAL 타입)을 위한 기본 Variant 컬렉션을 생성한다.
+   *
+   * <p>ProductVariant.createDefault()를 사용하여 논리적 기본 옵션 1개를 생성하고 해당 Product에 자동으로 연결(assign)한다.
+   */
+  public static ProductVariants createDefault(Product product) {
+    ProductVariant defaultVariant = ProductVariant.createDefault();
+    ProductVariants productVariants = new ProductVariants();
+    productVariants.add(defaultVariant, product);
+    return productVariants;
+  }
+
   /** 옵션 목록을 불변 리스트로 반환한다. */
   public List<ProductVariant> getValues() {
     return List.copyOf(values);
@@ -74,10 +86,13 @@ public class ProductVariants {
   /**
    * 옵션 단건 조회 (없으면 예외).
    *
+   * <p>소프트 딜리트된 옵션을 조회 대상에서 명확히 제외했다
+   *
    * @throws VariantNotFoundException 옵션 ID가 존재하지 않을 경우
    */
   public ProductVariant get(ProductVariantId variantId) {
     return values.stream()
+        .filter(v -> !v.isDeleted())
         .filter(v -> v.getId().equals(variantId))
         .findFirst()
         .orElseThrow(() -> new VariantNotFoundException(PRODUCT_VARIANT_NOT_FOUND));
@@ -86,10 +101,12 @@ public class ProductVariants {
   /**
    * 동일 옵션(Color + Size) 중복 여부 검사.
    *
+   * <p>소프트 딜리트된 옵션을 조회 대상에서 명확히 제외했다
+   *
    * <p>ProductVariant의 isSameOption() 도메인 규칙을 활용하여 동일 조합의 옵션이 이미 존재하는지 판단한다.
    */
   public boolean exists(ProductVariant target) {
-    return values.stream().anyMatch(v -> v.isSameOption(target));
+    return values.stream().filter(v -> !v.isDeleted()).anyMatch(v -> v.isSameOption(target));
   }
 
   /**
