@@ -100,7 +100,7 @@ public class ProductVariant extends AbstractAuditEntity {
    * @author 김지원
    * @since 1.0.0
    */
-  public static ProductVariant createDefault() {
+  static ProductVariant createDefault() {
     ProductVariant productVariant = new ProductVariant();
     productVariant.id = ProductVariantId.create();
     productVariant.color = ProductColor.of(DEFAULT_COLOR);
