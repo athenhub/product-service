@@ -12,14 +12,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 /**
- * {@link MemberRole#MASTER_MANAGER} 역할을 가진 사용자를 위한 상품
- * 조회 전략.
+ * {@link MemberRole#MASTER_MANAGER} 역할을 가진 사용자를 위한 상품 조회 전략.
  *
  * <p>모든 상품에 대한 전체 조회 권한을 가지며, {@link ProductQueryService#getAll(Pageable)}를 통해 상품을 조회한다.
  *
- * <p>{@link
- * ProductQueryApplicationService}에서 {@link
- * #supports(MemberRoles)}를 통해 선택되어 실행된다.
+ * <p>{@link ProductQueryApplicationService}에서 {@link #supports(MemberRoles)}를 통해 선택되어 실행된다.
  *
  * @author 김지원
  * @since 1.0.0

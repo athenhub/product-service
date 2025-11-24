@@ -12,15 +12,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 /**
- * {@link MemberRole#HUB_MANAGER} 역할을 가진 사용자를 위한 상품 조회.
- * 전략.
+ * {@link MemberRole#HUB_MANAGER} 역할을 가진 사용자를 위한 상품 조회. 전략.
  *
  * <p>현재 사용자가 소속된 허브({@code hubId}) 기준으로 상품을 조회한다. 조회 자체는 {@link ProductQueryService}에 위임하며, 이 클래스는
  * 조회 범위(허브)를 결정하는 역할만 수행한다.
  *
- * <p>{@link
- * ProductQueryApplicationService}에서 {@link
- * #supports(MemberRoles)}를 통해 선택되어 실행된다.
+ * <p>{@link ProductQueryApplicationService}에서 {@link #supports(MemberRoles)}를 통해 선택되어 실행된다.
  *
  * @author 김지원
  * @since 1.0.0
