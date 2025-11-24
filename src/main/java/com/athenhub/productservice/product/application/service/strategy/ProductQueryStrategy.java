@@ -12,9 +12,7 @@ import org.springframework.data.domain.Pageable;
  *
  * <p>각 구현체는 특정 역할에 대한 조회 로직을 담당하며, {@link #supports(MemberRoles)}를 통해 해당 역할을 처리 가능한지 판단한다.
  *
- * <p>{@link
- * ProductQueryApplicationService}에서 이 전략들을
- * 순회하며, 현재 사용자 역할에 맞는 구현체를 선택해 실행한다.
+ * <p>{@link ProductQueryApplicationService}에서 이 전략들을 순회하며, 현재 사용자 역할에 맞는 구현체를 선택해 실행한다.
  *
  * @author 김지원
  * @since 1.0.0

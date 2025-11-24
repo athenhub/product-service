@@ -58,11 +58,8 @@ public class ProductCommandApplicationService {
    * @throws ProductServiceException 권한이 없는 경우
    */
   public ProductResponse register(ProductRegisterRequest request, UUID userId) {
-    if (permissionPolicy.isCreateDenied(
-        userId, HubId.of(request.hubId()), VendorId.of(request.vendorId()))) {
+    validateRegisterPolicy(request, userId);
 
-      throw new ProductServiceException(CREATE_NOT_ALLOWED);
-    }
     return productRegisterService.register(request);
   }
 
@@ -81,9 +78,7 @@ public class ProductCommandApplicationService {
       UUID productId, ProductBasicUpdateRequest request, UUID userId) {
     Product product = productQueryService.get(productId);
 
-    if (permissionPolicy.isUpdateDenied(userId, product.getHubId(), product.getVendorId())) {
-      throw new ProductServiceException(UPDATE_NOT_ALLOWED);
-    }
+    validateUpdatePolicy(userId, product);
 
     return productUpdateService.updateBasicInfo(productId, request);
   }
@@ -103,9 +98,7 @@ public class ProductCommandApplicationService {
       UUID productId, ProductVariantUpdateRequest request, UUID userid, String username) {
     Product product = productQueryService.get(productId);
 
-    if (permissionPolicy.isUpdateDenied(userid, product.getHubId(), product.getVendorId())) {
-      throw new ProductServiceException(UPDATE_NOT_ALLOWED);
-    }
+    validateUpdatePolicy(userid, product);
 
     return productUpdateService.updateProductVariant(productId, request, username);
   }
@@ -131,10 +124,60 @@ public class ProductCommandApplicationService {
   public void delete(UUID productId, UUID userId, String username) {
     Product product = productQueryService.get(productId);
 
+    validateDeletePolicy(userId, product);
+
+    productDeleteService.delete(productId, username);
+  }
+
+  /**
+   * 상품 수정 권한을 검증한다.
+   *
+   * <p>요청자가 해당 상품이 속한 Hub / Vendor 에 대해 수정 권한을 가지고 있는지 확인한다.
+   *
+   * @param userId 요청자 ID
+   * @param product 수정 대상 상품
+   * @throws ProductServiceException 수정 권한이 없는 경우
+   * @author 김지원
+   * @since 1.0.0
+   */
+  private void validateUpdatePolicy(UUID userId, Product product) {
+    if (permissionPolicy.isUpdateDenied(userId, product.getHubId(), product.getVendorId())) {
+      throw new ProductServiceException(UPDATE_NOT_ALLOWED);
+    }
+  }
+
+  /**
+   * 상품 삭제 권한을 검증한다.
+   *
+   * <p>요청자가 해당 상품이 속한 Hub에 대해 삭제 권한을 가지고 있는지 확인한다.
+   *
+   * @param userId 요청자 ID
+   * @param product 삭제 대상 상품
+   * @throws ProductServiceException 삭제 권한이 없는 경우
+   * @author 김지원
+   * @since 1.0.0
+   */
+  private void validateDeletePolicy(UUID userId, Product product) {
     if (permissionPolicy.isDeleteDenied(userId, product.getHubId())) {
       throw new ProductServiceException(DELETE_NOT_ALLOWED);
     }
+  }
 
-    productDeleteService.delete(productId, username);
+  /**
+   * 상품 등록 권한을 검증한다.
+   *
+   * <p>요청자가 지정된 Hub / Vendor 에 대해 상품을 등록할 수 있는 권한을 가지고 있는지 확인한다.
+   *
+   * @param request 상품 등록 요청 정보
+   * @param userId 요청자 ID
+   * @throws ProductServiceException 등록 권한이 없는 경우
+   * @author 김지원
+   * @since 1.0.0
+   */
+  private void validateRegisterPolicy(ProductRegisterRequest request, UUID userId) {
+    if (permissionPolicy.isCreateDenied(
+        userId, HubId.of(request.hubId()), VendorId.of(request.vendorId()))) {
+      throw new ProductServiceException(CREATE_NOT_ALLOWED);
+    }
   }
 }
