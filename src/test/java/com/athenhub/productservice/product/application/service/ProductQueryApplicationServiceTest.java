@@ -2,7 +2,6 @@ package com.athenhub.productservice.product.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.athenhub.commoncore.error.GlobalErrorCode;
@@ -10,6 +9,7 @@ import com.athenhub.productservice.membership.domain.MemberRole;
 import com.athenhub.productservice.membership.domain.MemberRoles;
 import com.athenhub.productservice.product.application.dto.ProductSummary;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
+import com.athenhub.productservice.product.application.service.strategy.ProductQueryStrategy;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductType;
 import com.athenhub.productservice.product.domain.dto.MemberInfo;
@@ -38,6 +38,10 @@ class ProductQueryApplicationServiceTest {
   @Mock private ProductQueryService productQueryService;
   @Mock private MembershipProvider membershipProvider;
 
+  @Mock private ProductQueryStrategy hubMangerStrategy;
+  @Mock private ProductQueryStrategy masterMangerStrategy;
+  @Mock private ProductQueryStrategy vendorAgentStrategy;
+
   @InjectMocks private ProductQueryApplicationService productApplicationService;
 
   private UUID userId;
@@ -64,6 +68,11 @@ class ProductQueryApplicationServiceTest {
     product = Product.create(command);
 
     productPage = new PageImpl<>(List.of(product));
+
+    productApplicationService =
+        new ProductQueryApplicationService(
+            membershipProvider,
+            List.of(masterMangerStrategy, hubMangerStrategy, vendorAgentStrategy));
   }
 
   @Test
@@ -73,7 +82,9 @@ class ProductQueryApplicationServiceTest {
     MemberRoles roles = MemberRoles.of(List.of(MemberRole.MASTER_MANAGER));
 
     when(membershipProvider.getMember(userId)).thenReturn(memberInfo);
-    when(productQueryService.getAll(pageable)).thenReturn(productPage);
+    when(masterMangerStrategy.query(memberInfo, pageable)).thenReturn(productPage);
+
+    when(masterMangerStrategy.supports(roles)).thenReturn(true);
 
     // when
     Page<ProductSummary> result =
@@ -81,7 +92,6 @@ class ProductQueryApplicationServiceTest {
 
     // then
     assertThat(result.getContent()).hasSize(1);
-    verify(productQueryService).getAll(pageable);
   }
 
   @Test
@@ -91,7 +101,10 @@ class ProductQueryApplicationServiceTest {
     MemberRoles roles = MemberRoles.of(List.of(MemberRole.HUB_MANAGER));
 
     when(membershipProvider.getMember(userId)).thenReturn(memberInfo);
-    when(productQueryService.getByHubId(hubId, pageable)).thenReturn(productPage);
+    when(hubMangerStrategy.query(memberInfo, pageable)).thenReturn(productPage);
+
+    when(hubMangerStrategy.supports(roles)).thenReturn(true);
+    when(masterMangerStrategy.supports(roles)).thenReturn(false);
 
     // when
     Page<ProductSummary> result =
@@ -99,7 +112,6 @@ class ProductQueryApplicationServiceTest {
 
     // then
     assertThat(result.getContent()).hasSize(1);
-    verify(productQueryService).getByHubId(hubId, pageable);
   }
 
   @Test
@@ -109,7 +121,11 @@ class ProductQueryApplicationServiceTest {
     MemberRoles roles = MemberRoles.of(List.of(MemberRole.VENDOR_AGENT));
 
     when(membershipProvider.getMember(userId)).thenReturn(memberInfo);
-    when(productQueryService.getByVendorId(vendorId, pageable)).thenReturn(productPage);
+    when(vendorAgentStrategy.query(memberInfo, pageable)).thenReturn(productPage);
+
+    when(vendorAgentStrategy.supports(roles)).thenReturn(true);
+    when(masterMangerStrategy.supports(roles)).thenReturn(false);
+    when(hubMangerStrategy.supports(roles)).thenReturn(false);
 
     // when
     Page<ProductSummary> result =
@@ -117,7 +133,6 @@ class ProductQueryApplicationServiceTest {
 
     // then
     assertThat(result.getContent()).hasSize(1);
-    verify(productQueryService).getByVendorId(vendorId, pageable);
   }
 
   @Test
@@ -127,6 +142,10 @@ class ProductQueryApplicationServiceTest {
     MemberRoles roles = MemberRoles.of(List.of(MemberRole.USER));
 
     when(membershipProvider.getMember(userId)).thenReturn(memberInfo);
+
+    when(vendorAgentStrategy.supports(roles)).thenReturn(false);
+    when(masterMangerStrategy.supports(roles)).thenReturn(false);
+    when(hubMangerStrategy.supports(roles)).thenReturn(false);
 
     // when & then
     assertThatThrownBy(
