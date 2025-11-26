@@ -22,6 +22,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import java.util.List;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -109,12 +110,12 @@ public class Product extends AbstractAuditEntity {
   public static Product create(ProductCreateCommand command) {
     Product product = new Product();
     product.id = ProductId.create();
-    product.name = command.name();
-    product.description = command.description();
-    product.price = command.price();
-    product.hubId = command.hubId();
-    product.vendorId = command.vendorId();
-    product.type = command.type();
+    product.name = Objects.requireNonNull(command.name());
+    product.description = Objects.requireNonNull(command.description());
+    product.price = Objects.requireNonNull(command.price());
+    product.hubId = Objects.requireNonNull(command.hubId());
+    product.vendorId = Objects.requireNonNull(command.vendorId());
+    product.type = Objects.requireNonNull(command.type());
     product.status = ProductStatus.DRAFT;
 
     if (ProductType.isSimple(command.type())) {

@@ -11,4 +11,10 @@ import java.util.UUID;
  * @since 1.0.0
  */
 public record SearchProductResponse(
-    UUID productId, String name, String variant, UUID variantId, long price) {}
+    UUID productId,
+    String name,
+    String variant,
+    UUID variantId,
+    long price,
+    UUID hubId,
+    UUID vendorId) {}

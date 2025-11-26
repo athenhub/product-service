@@ -2,6 +2,7 @@ package com.athenhub.productservice.product.infrastructure;
 
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductStatus;
+import com.athenhub.productservice.product.domain.ProductVariant;
 import com.athenhub.productservice.product.domain.QProduct;
 import com.athenhub.productservice.product.domain.QProductVariant;
 import com.athenhub.productservice.product.domain.dto.SearchDaoRequest;
@@ -135,18 +136,22 @@ public class ProductDetailsDao implements ProductDetailRepository {
         .stream()
         .map(
             item -> {
+              Product p = Objects.requireNonNull(item.get(product));
+              ProductVariant pv = Objects.requireNonNull(item.get(productVariant));
               String variant =
-                  "size: %s, color: %s"
+                  "%s / %s"
                       .formatted(
-                          Objects.requireNonNull(item.get(productVariant)).getSize().getValue(),
-                          Objects.requireNonNull(item.get(productVariant)).getColor().getValue());
+                          Objects.requireNonNull(item.get(productVariant)).getColor().getValue(),
+                          Objects.requireNonNull(item.get(productVariant)).getSize().getValue());
 
               return new SearchProductResponse(
-                  Objects.requireNonNull(item.get(product)).getId().toUuid(),
-                  Objects.requireNonNull(item.get(product)).getName(),
+                  p.getId().toUuid(),
+                  p.getName(),
                   variant,
-                  Objects.requireNonNull(item.get(productVariant)).getId().toUuid(),
-                  Objects.requireNonNull(item.get(productVariant)).getProduct().getPrice().value());
+                  pv.getId().toUuid(),
+                  p.getPrice().value(),
+                  p.getHubId().toUuid(),
+                  p.getVendorId().toUuid());
             })
         .toList();
   }
