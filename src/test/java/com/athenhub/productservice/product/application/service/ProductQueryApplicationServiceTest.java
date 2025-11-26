@@ -35,7 +35,6 @@ import org.springframework.data.domain.Pageable;
 @ExtendWith(MockitoExtension.class)
 class ProductQueryApplicationServiceTest {
 
-  @Mock private ProductQueryService productQueryService;
   @Mock private MembershipProvider membershipProvider;
 
   @Mock private ProductQueryStrategy hubMangerStrategy;

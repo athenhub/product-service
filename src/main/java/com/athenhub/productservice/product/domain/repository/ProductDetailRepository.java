@@ -1,9 +1,12 @@
 package com.athenhub.productservice.product.domain.repository;
 
+import com.athenhub.productservice.product.application.dto.SearchProductResponse;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.dto.SearchDaoRequest;
 import com.athenhub.productservice.product.domain.vo.HubId;
+import com.athenhub.productservice.product.domain.vo.ProductVariantId;
 import com.athenhub.productservice.product.domain.vo.VendorId;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -58,4 +61,16 @@ public interface ProductDetailRepository {
    * @return {@link Product}의 {@link Page}
    */
   Page<Product> findAll(Pageable pageable);
+
+  /**
+   * 상품 옵션(Variant) ID 목록을 기반으로 상품 및 옵션 정보를 조회한다.
+   *
+   * <p>각 Variant와 연결된 Product 정보를 함께 조회하며, 전체 결과를 {@link SearchProductResponse} 목록으로 반환한다.
+   *
+   * @param variantIds 조회할 상품 옵션 ID 목록
+   * @return 상품 및 옵션 정보 응답 리스트
+   * @author 김지원
+   * @since 1.0.0
+   */
+  List<SearchProductResponse> searchIn(List<ProductVariantId> variantIds);
 }

@@ -4,11 +4,14 @@ import static com.athenhub.productservice.product.application.exception.ProductS
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.tuple;
 
+import com.athenhub.productservice.product.application.dto.SearchProductResponse;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
 import com.athenhub.productservice.product.domain.*;
 import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
 import com.athenhub.productservice.product.domain.repository.ProductRepository;
 import com.athenhub.productservice.product.domain.vo.Price;
+import com.athenhub.productservice.product.domain.vo.ProductVariantId;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -97,5 +100,56 @@ class ProductQueryServiceIntegrationTest {
               ProductServiceException ex = (ProductServiceException) e;
               assertThat(ex.getCode()).isEqualTo(PRODUCT_NOT_FOUND.name());
             });
+  }
+
+  @Test
+  @DisplayName("상품 옵션 리스트로 상품을 조회 할 수 있다.")
+  void getProductsBy() {
+    // given
+    ProductCreateCommand productCreateCommand =
+        ProductFixture.newProductCreateCommand(
+            "test-name", "test-description", 1000, ProductType.OPTION);
+
+    Product product1 = Product.create(productCreateCommand);
+    product1.updateToOnSale();
+    ProductVariantId productVariantId1 =
+        product1.addVariant(ProductFixture.newProductVariantCreateCommand("RED", "M"));
+    ProductVariantId productVariantId2 =
+        product1.addVariant(ProductFixture.newProductVariantCreateCommand("BLACK", "L"));
+
+    ProductCreateCommand productCreateCommand2 =
+        ProductFixture.newProductCreateCommand(
+            "test-name", "test-description", 2000, ProductType.OPTION);
+
+    Product product2 = Product.create(productCreateCommand);
+    product2.updateToOnSale();
+    ProductVariantId productVariantId3 =
+        product2.addVariant(ProductFixture.newProductVariantCreateCommand("RED", "M"));
+    ProductVariantId productVariantId4 =
+        product2.addVariant(ProductFixture.newProductVariantCreateCommand("BLACK", "L"));
+
+    productRepository.save(product1);
+    productRepository.save(product2);
+
+    // when
+    List<SearchProductResponse> products =
+        productQueryService.getProductsBy(
+            List.of(productVariantId1.toUuid(), productVariantId4.toUuid()));
+
+    // then
+    assertThat(products)
+        .hasSize(2)
+        .extracting("productId", "name", "variantId", "price")
+        .containsExactlyInAnyOrder(
+            tuple(
+                product1.getId().toUuid(),
+                product1.getName(),
+                productVariantId1.toUuid(),
+                product1.getPrice().value()),
+            tuple(
+                product2.getId().toUuid(),
+                product2.getName(),
+                productVariantId4.toUuid(),
+                product2.getPrice().value()));
   }
 }

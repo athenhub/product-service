@@ -1,15 +1,19 @@
 package com.athenhub.productservice.product.infrastructure;
 
+import com.athenhub.productservice.product.application.dto.SearchProductResponse;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductStatus;
 import com.athenhub.productservice.product.domain.QProduct;
+import com.athenhub.productservice.product.domain.QProductVariant;
 import com.athenhub.productservice.product.domain.dto.SearchDaoRequest;
 import com.athenhub.productservice.product.domain.repository.ProductDetailRepository;
 import com.athenhub.productservice.product.domain.vo.HubId;
+import com.athenhub.productservice.product.domain.vo.ProductVariantId;
 import com.athenhub.productservice.product.domain.vo.VendorId;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -94,6 +98,57 @@ public class ProductDetailsDao implements ProductDetailRepository {
   @Override
   public Page<Product> findAll(Pageable pageable) {
     return executeQuery(null, null, null, null, null, null, pageable);
+  }
+
+  /**
+   * 전달된 상품 옵션(Variant) ID 목록을 기반으로 상품과 옵션 정보를 조회한다.
+   *
+   * <p>ProductVariant를 시작점으로 Product를 조인하여 한 번의 쿼리로 조회하며, 옵션이 판매 중인 상품(onSale)만 필터링한다.
+   *
+   * <ul>
+   *   <li>variantIds가 {@code null}이거나 비어있으면 빈 리스트를 반환한다.
+   *   <li>ProductVariant → Product를 {@code fetchJoin}하여 N+1 문제를 방지한다.
+   *   <li>결과는 {@link SearchProductResponse}로 매핑한다.
+   * </ul>
+   *
+   * @param variantIds 조회할 상품 옵션 ID 목록
+   * @return 상품 및 옵션 정보 응답 리스트
+   * @author 김지원
+   * @since 1.0.0
+   */
+  @Override
+  public List<SearchProductResponse> searchIn(List<ProductVariantId> variantIds) {
+    if (variantIds == null || variantIds.isEmpty()) {
+      return List.of();
+    }
+
+    QProduct product = QProduct.product;
+    QProductVariant productVariant = QProductVariant.productVariant;
+
+    return queryFactory
+        .select(product, productVariant)
+        .from(productVariant)
+        .join(productVariant.product, product)
+        .fetchJoin()
+        .where(productVariantIdIn(variantIds), onSale())
+        .fetch()
+        .stream()
+        .map(
+            item -> {
+              String variant =
+                  "size: %s, color: %s"
+                      .formatted(
+                          Objects.requireNonNull(item.get(productVariant)).getSize().getValue(),
+                          Objects.requireNonNull(item.get(productVariant)).getColor().getValue());
+
+              return new SearchProductResponse(
+                  Objects.requireNonNull(item.get(product)).getId().toUuid(),
+                  Objects.requireNonNull(item.get(product)).getName(),
+                  variant,
+                  Objects.requireNonNull(item.get(productVariant)).getId().toUuid(),
+                  Objects.requireNonNull(item.get(productVariant)).getProduct().getPrice().value());
+            })
+        .toList();
   }
 
   /**
@@ -182,5 +237,17 @@ public class ProductDetailsDao implements ProductDetailRepository {
   /** 판매중인 상품만 조회. */
   private Predicate onSale() {
     return QProduct.product.status.eq(ProductStatus.ON_SALE);
+  }
+
+  /**
+   * 상품 옵션 ID 목록으로 IN 조건을 생성한다.
+   *
+   * @param variantIds 조회 대상 상품 옵션 ID 목록
+   * @return Querydsl {@link Predicate}
+   * @author 김지원
+   * @since 1.0.0
+   */
+  private Predicate productVariantIdIn(List<ProductVariantId> variantIds) {
+    return QProductVariant.productVariant.id.in(variantIds);
   }
 }

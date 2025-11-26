@@ -5,6 +5,7 @@ import com.athenhub.productservice.membership.domain.MemberRole;
 import com.athenhub.productservice.membership.domain.MemberRoles;
 import com.athenhub.productservice.product.application.dto.ProductDetail;
 import com.athenhub.productservice.product.application.dto.ProductSummary;
+import com.athenhub.productservice.product.application.dto.SearchProductResponse;
 import com.athenhub.productservice.product.application.service.ProductQueryApplicationService;
 import com.athenhub.productservice.product.application.service.ProductQueryService;
 import com.athenhub.productservice.product.domain.Product;
@@ -20,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -79,6 +81,28 @@ public class ProductQueryController {
   public Page<ProductSummary> search(SearchDaoRequest request, Pageable pageable) {
     Page<Product> result = productService.search(request, pageable);
     return result.map(ProductSummary::from);
+  }
+
+  /**
+   * 상품 옵션(Variant) ID 목록을 기반으로 상품 정보를 조회한다.
+   *
+   * <p>요청 파라미터로 전달된 {@code variantIds}를 이용해 상품 및 옵션 정보를 조회한다. 동일한 파라미터 이름(variantIds)을 여러 번 전달하면
+   * {@link java.util.List}로 자동 바인딩된다.
+   *
+   * <p>예시:
+   *
+   * <pre>
+   * /search-by-variant-id?variantIds=uuid1&variantIds=uuid2
+   * </pre>
+   *
+   * @param variantIds 조회할 상품 옵션(Variant) ID 목록
+   * @return 상품 및 옵션 정보 응답 리스트
+   * @author 김지원
+   * @since 1.0.0
+   */
+  @GetMapping("/search-by-variant-id")
+  public List<SearchProductResponse> getSearchBy(@RequestParam List<UUID> variantIds) {
+    return productService.getProductsBy(variantIds);
   }
 
   /**

@@ -2,6 +2,7 @@ package com.athenhub.productservice.product.application.service;
 
 import static com.athenhub.productservice.product.application.exception.ProductServiceErrorCode.PRODUCT_NOT_FOUND;
 
+import com.athenhub.productservice.product.application.dto.SearchProductResponse;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.dto.SearchDaoRequest;
@@ -9,7 +10,9 @@ import com.athenhub.productservice.product.domain.repository.ProductDetailReposi
 import com.athenhub.productservice.product.domain.repository.ProductRepository;
 import com.athenhub.productservice.product.domain.vo.HubId;
 import com.athenhub.productservice.product.domain.vo.ProductId;
+import com.athenhub.productservice.product.domain.vo.ProductVariantId;
 import com.athenhub.productservice.product.domain.vo.VendorId;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -103,5 +106,55 @@ public class ProductQueryService {
    */
   public Page<Product> search(SearchDaoRequest request, Pageable pageable) {
     return productDetailRepository.search(request, pageable);
+  }
+
+  /**
+   * 상품 옵션(Variant) ID 목록을 기반으로 상품 정보를 조회한다.
+   *
+   * <p>전달된 UUID 리스트를 도메인 객체 {@link ProductVariantId}로 변환한 뒤, Repository를 통해 검색 결과를 {@link
+   * SearchProductResponse} 목록으로 조회한다.
+   *
+   * <ul>
+   *   <li>variantIds가 {@code null}이거나 비어있으면 빈 리스트를 반환한다.
+   *   <li>UUID → {@link ProductVariantId} 변환은 내부 메서드에서 처리한다.
+   * </ul>
+   *
+   * @author 김지원
+   * @since 1.0.0
+   */
+  public List<SearchProductResponse> getProductsBy(List<UUID> variantIds) {
+    if (isEmpty(variantIds)) {
+      return List.of();
+    }
+
+    List<ProductVariantId> productVariantIds = getVariantIds(variantIds);
+
+    return productDetailRepository.searchIn(productVariantIds);
+  }
+
+  /**
+   * UUID 목록을 {@link ProductVariantId} 도메인 객체 목록으로 변환한다.
+   *
+   * @param variantIds 변환할 상품 옵션 UUID 목록
+   * @return 변환된 {@link ProductVariantId} 목록
+   * @author 김지원
+   * @since 1.0.0
+   */
+  private List<ProductVariantId> getVariantIds(List<UUID> variantIds) {
+    return variantIds.stream().map(ProductVariantId::of).toList();
+  }
+
+  /**
+   * 전달된 variantIds가 비어 있는지 검사한다.
+   *
+   * <p>{@code null} 이거나 {@link List#isEmpty()} 인 경우 {@code true}를 반환한다.
+   *
+   * @param variantIds 검사할 UUID 목록
+   * @return 비어있으면 {@code true}
+   * @author 김지원
+   * @since 1.0.0
+   */
+  private boolean isEmpty(List<UUID> variantIds) {
+    return variantIds == null || variantIds.isEmpty();
   }
 }

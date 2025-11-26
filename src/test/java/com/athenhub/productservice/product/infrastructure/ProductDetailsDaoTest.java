@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 import com.athenhub.productservice.global.infrastructure.audit.JpaAuditingConfig;
+import com.athenhub.productservice.product.application.dto.SearchProductResponse;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductFixture;
 import com.athenhub.productservice.product.domain.ProductStatus;
@@ -12,9 +13,13 @@ import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
 import com.athenhub.productservice.product.domain.dto.SearchDaoRequest;
 import com.athenhub.productservice.product.domain.vo.HubId;
 import com.athenhub.productservice.product.domain.vo.Price;
+import com.athenhub.productservice.product.domain.vo.ProductVariantId;
 import com.athenhub.productservice.product.domain.vo.VendorId;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,10 +47,12 @@ class ProductDetailsDaoTest {
   HubId hubId = HubId.of(UUID.randomUUID());
   VendorId vendorId = VendorId.of(UUID.randomUUID());
 
+  private Map<String, Product> productMap;
+
   @BeforeEach
   void setUp() {
     queryFactory = new JPAQueryFactory(em);
-    insertTestData();
+    productMap = insertTestData();
     em.flush();
     em.clear();
   }
@@ -73,8 +80,6 @@ class ProductDetailsDaoTest {
 
     // when
     Page<Product> result = productDetailsDao.search(search, PageRequest.of(0, 10));
-
-    result.forEach(Product::toString);
 
     // then
     assertThat(result.getContent()).hasSize(3);
@@ -161,6 +166,33 @@ class ProductDetailsDaoTest {
     assertThat(result.getContent()).hasSize(5);
   }
 
+  @Test
+  @DisplayName("옵션 아이디로 상품을 조회한다.")
+  void findByOption() {
+    Product nikeShoes = productMap.get("nikeShoes");
+    ProductVariantId nikeShoesVariantId = nikeShoes.getVariants().getFirst().getId();
+    Product adidasShoes = productMap.get("adidasShoes");
+    ProductVariantId adidasShoesVariantId = adidasShoes.getVariants().getFirst().getId();
+
+    List<SearchProductResponse> result =
+        productDetailsDao.searchIn(List.of(nikeShoesVariantId, adidasShoesVariantId));
+
+    assertThat(result)
+        .hasSize(2)
+        .extracting("productId", "name", "variantId", "price")
+        .containsExactlyInAnyOrder(
+            tuple(
+                nikeShoes.getId().toUuid(),
+                nikeShoes.getName(),
+                nikeShoesVariantId.toUuid(),
+                nikeShoes.getPrice().value()),
+            tuple(
+                adidasShoes.getId().toUuid(),
+                adidasShoes.getName(),
+                adidasShoesVariantId.toUuid(),
+                adidasShoes.getPrice().value()));
+  }
+
   @TestConfiguration
   static class TestAuditingConfig {
 
@@ -171,16 +203,22 @@ class ProductDetailsDaoTest {
   }
 
   /** 테스트용 데이터 삽입 */
-  private void insertTestData() {
-    persistProduct("나이키 신발", 10000L, hubId, vendorId, ProductType.SIMPLE, ProductStatus.ON_SALE);
+  private Map<String, Product> insertTestData() {
+    Map<String, Product> products = new HashMap<>();
+    Product nikeShoes =
+        persistProduct(
+            "나이키 신발", 10000L, hubId, vendorId, ProductType.SIMPLE, ProductStatus.ON_SALE);
+    products.put("nikeShoes", nikeShoes);
 
-    persistProduct(
-        "나이키 모자",
-        20000L,
-        hubId,
-        VendorId.of(UUID.randomUUID()),
-        ProductType.SIMPLE,
-        ProductStatus.ON_SALE);
+    Product nikeHat =
+        persistProduct(
+            "나이키 모자",
+            20000L,
+            hubId,
+            VendorId.of(UUID.randomUUID()),
+            ProductType.SIMPLE,
+            ProductStatus.ON_SALE);
+    products.put("nikeHat", nikeHat);
 
     Product adidasShoes =
         persistProduct(
@@ -192,18 +230,25 @@ class ProductDetailsDaoTest {
             ProductStatus.ON_SALE);
     adidasShoes.addVariant(ProductFixture.newProductVariantCreateCommand("RED", "265"));
     adidasShoes.addVariant(ProductFixture.newProductVariantCreateCommand("RED", "270"));
+    products.put("adidasShoes", adidasShoes);
 
     // 논리 삭제된 상품
-    persistProduct(
-        "삭제된 상품",
-        5000L,
-        HubId.of(UUID.randomUUID()),
-        VendorId.of(UUID.randomUUID()),
-        ProductType.SIMPLE,
-        ProductStatus.DELETED);
+    Product deleted =
+        persistProduct(
+            "삭제된 상품",
+            5000L,
+            HubId.of(UUID.randomUUID()),
+            VendorId.of(UUID.randomUUID()),
+            ProductType.SIMPLE,
+            ProductStatus.DELETED);
+    products.put("deleted", deleted);
 
-    persistProduct(
-        "단종된 상품", 10000L, hubId, vendorId, ProductType.SIMPLE, ProductStatus.DISCONTINUED);
+    Product discontinue =
+        persistProduct(
+            "단종된 상품", 10000L, hubId, vendorId, ProductType.SIMPLE, ProductStatus.DISCONTINUED);
+    products.put("discontinue", discontinue);
+
+    return products;
   }
 
   private Product persistProduct(
