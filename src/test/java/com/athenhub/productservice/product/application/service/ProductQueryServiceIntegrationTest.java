@@ -4,10 +4,10 @@ import static com.athenhub.productservice.product.application.exception.ProductS
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.tuple;
 
-import com.athenhub.productservice.product.application.dto.SearchProductResponse;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
 import com.athenhub.productservice.product.domain.*;
 import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
+import com.athenhub.productservice.product.domain.dto.SearchProductResponse;
 import com.athenhub.productservice.product.domain.repository.ProductRepository;
 import com.athenhub.productservice.product.domain.vo.Price;
 import com.athenhub.productservice.product.domain.vo.ProductVariantId;

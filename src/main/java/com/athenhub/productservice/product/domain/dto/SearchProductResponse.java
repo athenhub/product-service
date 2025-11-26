@@ -1,4 +1,4 @@
-package com.athenhub.productservice.product.application.dto;
+package com.athenhub.productservice.product.domain.dto;
 
 import java.util.UUID;
 

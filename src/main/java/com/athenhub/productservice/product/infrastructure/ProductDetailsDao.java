@@ -1,11 +1,11 @@
 package com.athenhub.productservice.product.infrastructure;
 
-import com.athenhub.productservice.product.application.dto.SearchProductResponse;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductStatus;
 import com.athenhub.productservice.product.domain.QProduct;
 import com.athenhub.productservice.product.domain.QProductVariant;
 import com.athenhub.productservice.product.domain.dto.SearchDaoRequest;
+import com.athenhub.productservice.product.domain.dto.SearchProductResponse;
 import com.athenhub.productservice.product.domain.repository.ProductDetailRepository;
 import com.athenhub.productservice.product.domain.vo.HubId;
 import com.athenhub.productservice.product.domain.vo.ProductVariantId;

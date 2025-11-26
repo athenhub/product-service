@@ -2,10 +2,10 @@ package com.athenhub.productservice.product.application.service;
 
 import static com.athenhub.productservice.product.application.exception.ProductServiceErrorCode.PRODUCT_NOT_FOUND;
 
-import com.athenhub.productservice.product.application.dto.SearchProductResponse;
 import com.athenhub.productservice.product.application.exception.ProductServiceException;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.dto.SearchDaoRequest;
+import com.athenhub.productservice.product.domain.dto.SearchProductResponse;
 import com.athenhub.productservice.product.domain.repository.ProductDetailRepository;
 import com.athenhub.productservice.product.domain.repository.ProductRepository;
 import com.athenhub.productservice.product.domain.vo.HubId;

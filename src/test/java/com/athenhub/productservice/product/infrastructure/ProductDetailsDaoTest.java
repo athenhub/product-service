@@ -4,13 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 import com.athenhub.productservice.global.infrastructure.audit.JpaAuditingConfig;
-import com.athenhub.productservice.product.application.dto.SearchProductResponse;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductFixture;
 import com.athenhub.productservice.product.domain.ProductStatus;
 import com.athenhub.productservice.product.domain.ProductType;
 import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
 import com.athenhub.productservice.product.domain.dto.SearchDaoRequest;
+import com.athenhub.productservice.product.domain.dto.SearchProductResponse;
 import com.athenhub.productservice.product.domain.vo.HubId;
 import com.athenhub.productservice.product.domain.vo.Price;
 import com.athenhub.productservice.product.domain.vo.ProductVariantId;
