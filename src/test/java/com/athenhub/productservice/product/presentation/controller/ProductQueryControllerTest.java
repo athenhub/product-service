@@ -47,7 +47,7 @@ class ProductQueryControllerTest {
     BDDMockito.given(productQueryService.get(productId)).willReturn(product);
 
     // when
-    MvcTestResult result = mvc.get().uri("/products/{productId}", productId).exchange();
+    MvcTestResult result = mvc.get().uri("/api/v1/products/{productId}", productId).exchange();
 
     // then
     assertThat(result)
@@ -79,7 +79,7 @@ class ProductQueryControllerTest {
         .willReturn(page);
 
     // when
-    MvcTestResult result = mvc.get().uri("/products/search").exchange();
+    MvcTestResult result = mvc.get().uri("/api/v1/products/search").exchange();
 
     // then
     assertThat(result)
@@ -114,7 +114,7 @@ class ProductQueryControllerTest {
         .willReturn(page);
 
     // when
-    MvcTestResult result = mvc.get().uri("/products/managed").exchange();
+    MvcTestResult result = mvc.get().uri("/api/v1/products/managed").exchange();
     assertThat(result)
         .hasStatusOk()
         .bodyJson()
@@ -147,7 +147,7 @@ class ProductQueryControllerTest {
         .willReturn(page);
 
     // when
-    MvcTestResult result = mvc.get().uri("/products/managed").exchange();
+    MvcTestResult result = mvc.get().uri("/api/v1/products/managed").exchange();
 
     assertThat(result).hasStatus(HttpStatus.FORBIDDEN);
   }
