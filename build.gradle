@@ -71,6 +71,12 @@ dependencies {
     // PostgreSQL
     implementation 'org.postgresql:postgresql'
 
+    // open feign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    // RabbitMQ
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.amqp:spring-rabbit-stream'
 
     // common
     implementation 'com.athenhub:common-mvc:1.2.0'
