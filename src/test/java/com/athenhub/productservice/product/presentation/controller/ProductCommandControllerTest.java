@@ -49,7 +49,7 @@ class ProductCommandControllerTest {
     // when
     MvcTestResult result =
         mvc.post()
-            .uri("/products")
+            .uri("/api/v1/products")
             .contentType(APPLICATION_JSON)
             .content(objectMapper.writeValueAsBytes(request))
             .exchange();
@@ -73,7 +73,7 @@ class ProductCommandControllerTest {
     // when
     MvcTestResult result =
         mvc.post()
-            .uri("/products")
+            .uri("/api/v1/products")
             .contentType(APPLICATION_JSON)
             .content(objectMapper.writeValueAsBytes(request))
             .exchange();
@@ -95,7 +95,7 @@ class ProductCommandControllerTest {
     // when
     MvcTestResult result =
         mvc.put()
-            .uri("/products/{productId}/basic", productId)
+            .uri("/api/v1/products/{productId}/basic", productId)
             .contentType(APPLICATION_JSON)
             .content(objectMapper.writeValueAsBytes(request))
             .exchange();
@@ -121,7 +121,7 @@ class ProductCommandControllerTest {
     // when
     MvcTestResult result =
         mvc.put()
-            .uri("/products/{productId}/variants", productId)
+            .uri("/api/v1/products/{productId}/variants", productId)
             .contentType(APPLICATION_JSON)
             .content(objectMapper.writeValueAsBytes(request))
             .exchange();
@@ -147,7 +147,7 @@ class ProductCommandControllerTest {
     // when
     MvcTestResult result =
         mvc.put()
-            .uri("/products/{productId}/basic", productId)
+            .uri("/api/v1/products/{productId}/basic", productId)
             .contentType(APPLICATION_JSON)
             .content(objectMapper.writeValueAsBytes(request))
             .exchange();
@@ -163,7 +163,7 @@ class ProductCommandControllerTest {
     UUID productId = UUID.randomUUID();
 
     // when
-    MvcTestResult result = mvc.delete().uri("/products/{productId}", productId).exchange();
+    MvcTestResult result = mvc.delete().uri("/api/v1/products/{productId}", productId).exchange();
 
     // then
     assertThat(result).hasStatusOk();
@@ -176,7 +176,7 @@ class ProductCommandControllerTest {
     UUID productId = UUID.randomUUID();
 
     // when
-    MvcTestResult result = mvc.delete().uri("/products/{productId}", productId).exchange();
+    MvcTestResult result = mvc.delete().uri("/api/v1/products/{productId}", productId).exchange();
 
     // then
     assertThat(result).hasStatus(HttpStatus.FORBIDDEN);
@@ -187,7 +187,7 @@ class ProductCommandControllerTest {
   void delete_as_vendorAgent() {
     UUID productId = UUID.randomUUID();
 
-    MvcTestResult result = mvc.delete().uri("/products/{productId}", productId).exchange();
+    MvcTestResult result = mvc.delete().uri("/api/v1/products/{productId}", productId).exchange();
 
     assertThat(result).hasStatus(HttpStatus.FORBIDDEN);
   }
