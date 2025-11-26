@@ -100,7 +100,7 @@ public class ProductQueryController {
    * @author 김지원
    * @since 1.0.0
    */
-  @GetMapping("/search-by-variant-id")
+  @GetMapping("/search/variants")
   public List<SearchProductResponse> getSearchBy(@RequestParam List<UUID> variantIds) {
     return productService.getProductsBy(variantIds);
   }
