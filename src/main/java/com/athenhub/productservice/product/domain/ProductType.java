@@ -25,7 +25,7 @@ public enum ProductType {
   /** 상품 유형의 설명(관리 UI 등에서 사용 가능). */
   private final String description;
 
-  /** 상품 타입 값이 SIMPLE 인지 확인 */
+  /** 상품 타입 값이 SIMPLE 인지 확인. */
   public static boolean isSimple(ProductType type) {
     return SIMPLE.equals(type);
   }

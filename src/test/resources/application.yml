@@ -6,3 +6,10 @@ spring:
 eureka:
   client:
     enabled: false
+
+rabbit:
+  stock:
+    exchange: stock.exchange
+    registered:
+      routing-key: stock.registered
+      queue: stock.registered.queue

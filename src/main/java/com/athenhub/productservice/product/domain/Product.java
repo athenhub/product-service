@@ -214,4 +214,9 @@ public class Product extends AbstractAuditEntity {
       throw new ProductVariantNotSupportedException(PRODUCT_VARIANT_NOT_SUPPORTED);
     }
   }
+
+  /** 제품의 상태를 OnSale상태로 변경한다. */
+  public void updateToOnSale() {
+    this.status = ProductStatus.ON_SALE;
+  }
 }
