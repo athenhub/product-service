@@ -25,6 +25,7 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * Product Aggregate Root.
@@ -54,6 +55,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "p_product")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@ToString
 public class Product extends AbstractAuditEntity {
 
   /** 상품 식별자 (Aggregate Identifier). */

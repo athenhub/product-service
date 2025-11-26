@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import com.athenhub.productservice.global.infrastructure.audit.JpaAuditingConfig;
 import com.athenhub.productservice.product.domain.Product;
 import com.athenhub.productservice.product.domain.ProductFixture;
+import com.athenhub.productservice.product.domain.ProductStatus;
 import com.athenhub.productservice.product.domain.ProductType;
 import com.athenhub.productservice.product.domain.dto.ProductCreateCommand;
 import com.athenhub.productservice.product.domain.dto.SearchDaoRequest;
@@ -73,6 +74,8 @@ class ProductDetailsDaoTest {
     // when
     Page<Product> result = productDetailsDao.search(search, PageRequest.of(0, 10));
 
+    result.forEach(Product::toString);
+
     // then
     assertThat(result.getContent()).hasSize(3);
     assertThat(result.getContent())
@@ -87,7 +90,7 @@ class ProductDetailsDaoTest {
 
     // when
     Page<Product> result = productDetailsDao.search(search, PageRequest.of(0, 10));
-
+    result.forEach(it -> System.out.println("result: " + it));
     // then
     assertThat(result.getContent()).hasSize(1);
     assertThat(result.getContent().getFirst().getHubId()).isEqualTo(hubId);
@@ -95,13 +98,14 @@ class ProductDetailsDaoTest {
   }
 
   @Test
-  @DisplayName("논리 삭제된 상품은 조회에서 제외")
-  void not_deleted_only() {
+  @DisplayName("판매중(OnSale) 상품만 조회")
+  void search_onSale() {
     // given
     SearchDaoRequest search = new SearchDaoRequest(null, null, null, null, null);
 
     // when
     Page<Product> result = productDetailsDao.search(search, PageRequest.of(0, 10));
+    result.forEach(it -> System.out.println("result: " + it));
 
     // then (삭제 상품 제외: 총 4개 -> 3개로 줄어야 함)
     assertThat(result.getTotalElements()).isEqualTo(3);
@@ -130,7 +134,10 @@ class ProductDetailsDaoTest {
     Page<Product> result = productDetailsDao.findByHubId(hubId, PageRequest.of(0, 10));
 
     // then
-    assertThat(result.getContent()).hasSize(2).extracting("name").contains("나이키 모자", "나이키 신발");
+    assertThat(result.getContent())
+        .hasSize(3)
+        .extracting("name")
+        .contains("나이키 모자", "나이키 신발", "단종된 상품");
   }
 
   @Test
@@ -139,16 +146,19 @@ class ProductDetailsDaoTest {
     Page<Product> result = productDetailsDao.findByVendorId(vendorId, PageRequest.of(0, 10));
 
     // then
-    assertThat(result.getContent()).hasSize(2).extracting("name").contains("아디다스 신발", "나이키 신발");
+    assertThat(result.getContent())
+        .hasSize(3)
+        .extracting("name")
+        .contains("아디다스 신발", "나이키 신발", "단종된 상품");
   }
 
   @Test
-  @DisplayName("모든 상품을 조회한다. 삭제된 상품도 조회한다.")
+  @DisplayName("모든 상품을 조회한다. 판매중이 아닌 상품도 조회된다.")
   void find_all() {
     Page<Product> result = productDetailsDao.findAll(PageRequest.of(0, 10));
 
     // then
-    assertThat(result.getContent()).hasSize(4);
+    assertThat(result.getContent()).hasSize(5);
   }
 
   @TestConfiguration
@@ -162,30 +172,55 @@ class ProductDetailsDaoTest {
 
   /** 테스트용 데이터 삽입 */
   private void insertTestData() {
-    persistProduct("나이키 신발", 10000L, hubId, vendorId, ProductType.SIMPLE);
-    persistProduct("나이키 모자", 20000L, hubId, VendorId.of(UUID.randomUUID()), ProductType.SIMPLE);
+    persistProduct("나이키 신발", 10000L, hubId, vendorId, ProductType.SIMPLE, ProductStatus.ON_SALE);
+
+    persistProduct(
+        "나이키 모자",
+        20000L,
+        hubId,
+        VendorId.of(UUID.randomUUID()),
+        ProductType.SIMPLE,
+        ProductStatus.ON_SALE);
+
     Product adidasShoes =
         persistProduct(
-            "아디다스 신발", 30000L, HubId.of(UUID.randomUUID()), vendorId, ProductType.OPTION);
+            "아디다스 신발",
+            30000L,
+            HubId.of(UUID.randomUUID()),
+            vendorId,
+            ProductType.OPTION,
+            ProductStatus.ON_SALE);
     adidasShoes.addVariant(ProductFixture.newProductVariantCreateCommand("RED", "265"));
     adidasShoes.addVariant(ProductFixture.newProductVariantCreateCommand("RED", "270"));
 
     // 논리 삭제된 상품
-    Product deleted =
-        persistProduct(
-            "삭제된 상품",
-            5000L,
-            HubId.of(UUID.randomUUID()),
-            VendorId.of(UUID.randomUUID()),
-            ProductType.SIMPLE);
-    deleted.delete("admin");
+    persistProduct(
+        "삭제된 상품",
+        5000L,
+        HubId.of(UUID.randomUUID()),
+        VendorId.of(UUID.randomUUID()),
+        ProductType.SIMPLE,
+        ProductStatus.DELETED);
+
+    persistProduct(
+        "단종된 상품", 10000L, hubId, vendorId, ProductType.SIMPLE, ProductStatus.DISCONTINUED);
   }
 
   private Product persistProduct(
-      String name, long price, HubId hubId, VendorId vendorId, ProductType type) {
+      String name,
+      long price,
+      HubId hubId,
+      VendorId vendorId,
+      ProductType type,
+      ProductStatus status) {
     ProductCreateCommand productCreateCommand =
         new ProductCreateCommand(name, "설명", Price.of(price), hubId, vendorId, type);
     Product product = Product.create(productCreateCommand);
+    product.changeStatus(status);
+
+    if (status == ProductStatus.DELETED) {
+      product.delete("admin");
+    }
     em.persist(product);
     return product;
   }

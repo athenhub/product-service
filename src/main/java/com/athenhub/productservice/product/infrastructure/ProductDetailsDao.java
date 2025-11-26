@@ -1,6 +1,7 @@
 package com.athenhub.productservice.product.infrastructure;
 
 import com.athenhub.productservice.product.domain.Product;
+import com.athenhub.productservice.product.domain.ProductStatus;
 import com.athenhub.productservice.product.domain.QProduct;
 import com.athenhub.productservice.product.domain.dto.SearchDaoRequest;
 import com.athenhub.productservice.product.domain.repository.ProductDetailRepository;
@@ -50,7 +51,7 @@ public class ProductDetailsDao implements ProductDetailRepository {
         nameStartWith(search.name()),
         minPriceGoe(search.minPrice()),
         maxPriceLoe(search.maxPrice()),
-        notDeleted(),
+        onSale(),
         pageable);
   }
 
@@ -114,7 +115,7 @@ public class ProductDetailsDao implements ProductDetailRepository {
       Predicate name,
       Predicate minPrice,
       Predicate maxPrice,
-      Predicate notDelete,
+      Predicate onSale,
       Pageable pageable) {
     QProduct product = QProduct.product;
 
@@ -122,7 +123,7 @@ public class ProductDetailsDao implements ProductDetailRepository {
         queryFactory
             .select(product)
             .from(product)
-            .where(hub, vendor, name, minPrice, maxPrice, notDelete)
+            .where(hub, vendor, name, minPrice, maxPrice, onSale)
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .orderBy(product.createdAt.desc())
@@ -132,7 +133,7 @@ public class ProductDetailsDao implements ProductDetailRepository {
         queryFactory
             .select(product.count())
             .from(product)
-            .where(hub, vendor, name, minPrice, maxPrice, notDelete)
+            .where(hub, vendor, name, minPrice, maxPrice, onSale)
             .fetchOne();
 
     return new PageImpl<>(results, pageable, total == null ? 0 : total);
@@ -178,8 +179,8 @@ public class ProductDetailsDao implements ProductDetailRepository {
     return QProduct.product.vendorId.eq(vendorId);
   }
 
-  /** 논리 삭제되지 않은 상품만 조회. */
-  private Predicate notDeleted() {
-    return QProduct.product.deletedAt.isNull();
+  /** 판매중인 상품만 조회. */
+  private Predicate onSale() {
+    return QProduct.product.status.eq(ProductStatus.ON_SALE);
   }
 }
