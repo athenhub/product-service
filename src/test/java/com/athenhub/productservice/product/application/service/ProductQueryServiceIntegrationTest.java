@@ -33,7 +33,7 @@ class ProductQueryServiceIntegrationTest {
     // given
     ProductCreateCommand productCreateCommand =
         ProductFixture.newProductCreateCommand(
-            "test-name", "test-description", 1000, ProductType.SIMPLE);
+            "test-productName", "test-description", 1000, ProductType.SIMPLE);
 
     Product product = Product.create(productCreateCommand);
     productRepository.save(product);
@@ -44,7 +44,7 @@ class ProductQueryServiceIntegrationTest {
 
     // then
     assertThat(foundProduct.getId()).isNotNull();
-    assertThat(foundProduct.getName()).isEqualTo("test-name");
+    assertThat(foundProduct.getName()).isEqualTo("test-productName");
     assertThat(foundProduct.getDescription()).isEqualTo("test-description");
     assertThat(foundProduct.getPrice()).isEqualTo(Price.of(1000));
     assertThat(foundProduct.getType()).isEqualTo(ProductType.SIMPLE);
@@ -61,7 +61,7 @@ class ProductQueryServiceIntegrationTest {
     // given
     ProductCreateCommand productCreateCommand =
         ProductFixture.newProductCreateCommand(
-            "test-name", "test-description", 1000, ProductType.OPTION);
+            "test-productName", "test-description", 1000, ProductType.OPTION);
 
     Product product = Product.create(productCreateCommand);
     product.addVariant(ProductFixture.newProductVariantCreateCommand("RED", "M"));
@@ -75,7 +75,7 @@ class ProductQueryServiceIntegrationTest {
 
     // then
     assertThat(foundProduct.getId()).isNotNull();
-    assertThat(foundProduct.getName()).isEqualTo("test-name");
+    assertThat(foundProduct.getName()).isEqualTo("test-productName");
     assertThat(foundProduct.getDescription()).isEqualTo("test-description");
     assertThat(foundProduct.getPrice()).isEqualTo(Price.of(1000));
     assertThat(foundProduct.getType()).isEqualTo(ProductType.OPTION);
@@ -108,7 +108,7 @@ class ProductQueryServiceIntegrationTest {
     // given
     ProductCreateCommand productCreateCommand =
         ProductFixture.newProductCreateCommand(
-            "test-name", "test-description", 1000, ProductType.OPTION);
+            "test-productName", "test-description", 1000, ProductType.OPTION);
 
     Product product1 = Product.create(productCreateCommand);
     product1.updateToOnSale();
@@ -119,7 +119,7 @@ class ProductQueryServiceIntegrationTest {
 
     ProductCreateCommand productCreateCommand2 =
         ProductFixture.newProductCreateCommand(
-            "test-name", "test-description", 2000, ProductType.OPTION);
+            "test-productName", "test-description", 2000, ProductType.OPTION);
 
     Product product2 = Product.create(productCreateCommand);
     product2.updateToOnSale();
@@ -139,7 +139,7 @@ class ProductQueryServiceIntegrationTest {
     // then
     assertThat(products)
         .hasSize(2)
-        .extracting("productId", "name", "variantId", "price")
+        .extracting("productId", "productName", "productVariantId", "price")
         .containsExactlyInAnyOrder(
             tuple(
                 product1.getId().toUuid(),

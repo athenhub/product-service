@@ -31,7 +31,7 @@ public class ProductFixture {
    */
   public static Product createOptionProduct() {
     return Product.create(
-        newProductCreateCommand("test-name", "test-description", 1000, ProductType.OPTION));
+        newProductCreateCommand("test-productName", "test-description", 1000, ProductType.OPTION));
   }
 
   /**
@@ -41,7 +41,7 @@ public class ProductFixture {
    */
   public static Product createSimpleProduct() {
     return Product.create(
-        newProductCreateCommand("test-name", "test-description", 1000, ProductType.SIMPLE));
+        newProductCreateCommand("test-productName", "test-description", 1000, ProductType.SIMPLE));
   }
 
   /**

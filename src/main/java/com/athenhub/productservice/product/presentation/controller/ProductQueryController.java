@@ -92,7 +92,7 @@ public class ProductQueryController {
    * <p>예시:
    *
    * <pre>
-   * /search-by-variant-id?variantIds=uuid1&variantIds=uuid2
+   * /search-by-productVariantName-id?variantIds=uuid1&variantIds=uuid2
    * </pre>
    *
    * @param variantIds 조회할 상품 옵션(Variant) ID 목록

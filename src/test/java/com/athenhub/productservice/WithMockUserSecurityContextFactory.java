@@ -18,7 +18,7 @@ import org.springframework.security.test.context.support.WithSecurityContextFact
  * org.springframework.security.test.context.support.WithSecurityContextFactory} 인터페이스를 구현하여, 테스트
  * 메서드 실행 전에 인증 정보를 SecurityContext에 설정한다.
  *
- * <p>주어진 {@link MockUser} 애노테이션의 속성(uuid, username, name, slackId, roles)을 기반으로 {@link
+ * <p>주어진 {@link MockUser} 애노테이션의 속성(uuid, username, productName, slackId, roles)을 기반으로 {@link
  * AuthenticatedUser} 객체(UserDetails 구현체)를 생성하고, 이를 principal로 가지는 {@link
  * UsernamePasswordAuthenticationToken} 인증 객체를 구성한다.
  *

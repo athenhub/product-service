@@ -30,7 +30,7 @@ class ProductRegisterServiceIntegrationTest {
     // given
     ProductRegisterRequest request =
         new ProductRegisterRequest(
-            "test-name",
+            "test-productName",
             "test-description",
             10_000L,
             UUID.randomUUID(),

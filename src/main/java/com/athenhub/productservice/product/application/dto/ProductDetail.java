@@ -43,7 +43,7 @@ public record ProductDetail(
    * <p>하나의 ProductVariant 엔티티를 외부 계층에서 사용 가능한 형태로 변환한다.
    *
    * <ul>
-   *   <li>variantId : 옵션 식별자
+   *   <li>productVariantId : 옵션 식별자
    *   <li>color : 색상
    *   <li>size : 사이즈
    *   <li>quantity : 재고 (현재는 0으로 고정)

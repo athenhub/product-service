@@ -12,7 +12,7 @@ import org.springframework.security.test.context.support.WithSecurityContext;
  * <p>Spring Security의 {@link org.springframework.security.test.context.support.WithSecurityContext}
  * 메커니즘을 활용하여, 테스트 실행 시 지정된 사용자 정보로 SecurityContext 를 구성한다.
  *
- * <p>컨트롤러, 서비스, 리포지토리 테스트 등에서 인증이 필요한 로직을 검증할 때 편리하게 사용할 수 있으며, 사용자 UUID, username, 표시 이름(name),
+ * <p>컨트롤러, 서비스, 리포지토리 테스트 등에서 인증이 필요한 로직을 검증할 때 편리하게 사용할 수 있으며, 사용자 UUID, username, 표시 이름(productName),
  * Slack ID, 역할(roles) 등을 자유롭게 설정할 수 있다.
  *
  * <p>사용 예:

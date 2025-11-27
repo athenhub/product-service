@@ -16,7 +16,7 @@ import org.springframework.test.json.JsonPathValueAssert;
  * <pre>{@code
  * json.assertThat("$.data.id", AssertThatUtils.notNull());
  * json.assertThat("$.success", AssertThatUtils.isTrue());
- * json.assertThat("$.data.name", AssertThatUtils.isEqualTo("홍길동"));
+ * json.assertThat("$.data.productName", AssertThatUtils.isEqualTo("홍길동"));
  * }</pre>
  *
  * <p>각 검증 메서드는 {@link AssertProvider<JsonPathValueAssert>}를 입력으로 받아 AssertJ 기반의 실제 검증을 수행합니다.

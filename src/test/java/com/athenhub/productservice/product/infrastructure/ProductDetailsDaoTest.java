@@ -141,7 +141,7 @@ class ProductDetailsDaoTest {
     // then
     assertThat(result.getContent())
         .hasSize(3)
-        .extracting("name")
+        .extracting("productName")
         .contains("나이키 모자", "나이키 신발", "단종된 상품");
   }
 
@@ -153,7 +153,7 @@ class ProductDetailsDaoTest {
     // then
     assertThat(result.getContent())
         .hasSize(3)
-        .extracting("name")
+        .extracting("productName")
         .contains("아디다스 신발", "나이키 신발", "단종된 상품");
   }
 
@@ -179,7 +179,7 @@ class ProductDetailsDaoTest {
 
     assertThat(result)
         .hasSize(2)
-        .extracting("productId", "name", "variantId", "price")
+        .extracting("productId", "productName", "productVariantId", "price")
         .containsExactlyInAnyOrder(
             tuple(
                 nikeShoes.getId().toUuid(),

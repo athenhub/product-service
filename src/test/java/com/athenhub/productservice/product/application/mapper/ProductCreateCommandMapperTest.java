@@ -31,7 +31,7 @@ class ProductCreateCommandMapperTest {
 
     ProductRegisterRequest request =
         new ProductRegisterRequest(
-            "test-name",
+            "test-productName",
             "test-description",
             10_000L,
             hubId,
@@ -43,7 +43,7 @@ class ProductCreateCommandMapperTest {
     ProductCreateCommand result = mapper.toCreateCommand(request);
 
     // then
-    assertThat(result.name()).isEqualTo("test-name");
+    assertThat(result.name()).isEqualTo("test-productName");
     assertThat(result.description()).isEqualTo("test-description");
     assertThat(result.hubId().toUuid()).isEqualTo(hubId);
     assertThat(result.vendorId().toUuid()).isEqualTo(vendorId);
@@ -63,7 +63,7 @@ class ProductCreateCommandMapperTest {
 
     ProductRegisterRequest request =
         new ProductRegisterRequest(
-            "test-name",
+            "test-productName",
             "test-description",
             5_000L,
             UUID.randomUUID(),
@@ -87,7 +87,7 @@ class ProductCreateCommandMapperTest {
     // given
     ProductRegisterRequest request =
         new ProductRegisterRequest(
-            "test-name",
+            "test-productName",
             "test-description",
             5_000L,
             UUID.randomUUID(),

@@ -45,7 +45,7 @@ class ProductTest {
     Product product = createSimpleProduct();
 
     // when
-    String changedName = "test-name";
+    String changedName = "test-productName";
     String changedDescription = "test-description";
     Price changedPrice = Price.of(1000);
     product.updateBasic(
