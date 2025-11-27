@@ -141,7 +141,7 @@ class ProductDetailsDaoTest {
     // then
     assertThat(result.getContent())
         .hasSize(3)
-        .extracting("productName")
+        .extracting("name")
         .contains("나이키 모자", "나이키 신발", "단종된 상품");
   }
 
@@ -153,7 +153,7 @@ class ProductDetailsDaoTest {
     // then
     assertThat(result.getContent())
         .hasSize(3)
-        .extracting("productName")
+        .extracting("name")
         .contains("아디다스 신발", "나이키 신발", "단종된 상품");
   }
 
